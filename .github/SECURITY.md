@@ -6,7 +6,7 @@ scriba は会議の音声を端末内で録音し、端末内で文字起こし�
 
 ネットワークに出るのは次の場合だけです。
 
-- 初回の mlx-whisper のモデル取得と、`uvx` / `uv run --with` による依存の取得
+- 初回の音声認識モデルの取得（Haas は speech.cpp と重み、Whisper 系は mlx-whisper のモデル）と、`uvx` / `uv run --with` による依存の取得
 - `calendar_source = "ics"` で `calendar_path` に http(s) の URL を設定したときの予定の取得
 - `scriba view --serve` のページが読む htmx（unpkg.com）。サーバー自体は `127.0.0.1` だけで待ち受けます
 
