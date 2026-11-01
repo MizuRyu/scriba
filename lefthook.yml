@@ -1,0 +1,13 @@
+pre-commit:
+  parallel: false
+  commands:
+    gitleaks:
+      run: gitleaks git --pre-commit --staged --no-banner --redact
+    ruff:
+      glob: "**/*.py"
+      run: uv run ruff check {staged_files}
+
+pre-push:
+  commands:
+    verify:
+      run: just verify

@@ -1,0 +1,13 @@
+## transcript/acme/<STEM>_【ACME】臨時.txt
+---
+title: 【ACME】臨時
+date: <DATE>
+start: "<HH:MM>"
+end: "<HH:MM>"
+organization: ACME
+project: acme
+source_session: <SID>
+---
+
+[00:01]
+臨時の議題です

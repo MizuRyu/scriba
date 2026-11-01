@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scriba</title>
+<style>
+__CSS__
+</style>
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+<script src="/static/serve.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Scriba</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">◑ Theme</button>
+  </div>
+  <div class="header-sub">Meeting Transcription · <span id="generated-at">__GENERATED_AT__</span></div>
+  <div class="nav">
+    <button class="nav-link active" id="nav-sessions"
+            hx-get="/partial/sessions" hx-target="#content" hx-swap="innerHTML"
+            onclick="setActiveNav(this)">Sessions</button>
+    <button class="nav-link" id="nav-performance"
+            hx-get="/partial/performance" hx-target="#content" hx-swap="innerHTML"
+            onclick="setActiveNav(this)">Performance</button>
+    <button class="nav-link" id="nav-settings"
+            hx-get="/partial/settings" hx-target="#content" hx-swap="innerHTML"
+            onclick="setActiveNav(this)">Settings</button>
+  </div>
+  <div id="content" hx-get="/partial/sessions" hx-trigger="load" hx-swap="innerHTML">
+  </div>
+</div>
+<script>
+function toggleTheme() {
+  document.documentElement.classList.toggle('dark');
+  localStorage.setItem('scriba-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+}
+if (localStorage.getItem('scriba-theme') === 'dark' || (!localStorage.getItem('scriba-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.classList.add('dark');
+}
+function setActiveNav(el) {
+  document.querySelectorAll('.nav-link').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

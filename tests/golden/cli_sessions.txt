@@ -1,0 +1,74 @@
+## 20260706-091500/chunks/mic_000.wav
+
+## 20260706-091500/chunks/teams_000.wav
+
+## 20260706-091500/chunks/teams_001.wav
+
+## 20260706-091500/meta.json
+{
+  "session_id": "20260706-091500",
+  "started_at": "<TS>",
+  "stopped_at": "<TS>",
+  "mode": "live",
+  "chunk_duration": 120,
+  "tracks": [
+    "teams",
+    "mic"
+  ],
+  "enrich": {
+    "id": "evt-1",
+    "subject": "【ACME】定例 7/6",
+    "start": "<TS>.0000000",
+    "end": "<TS>.0000000",
+    "organizer": "alice@sales.acme.example",
+    "showAs": "busy"
+  },
+  "title": "【ACME】定例 7/6",
+  "exported_at": "<TS>",
+  "exported_to": "<TMP>/out/transcript/acme/260706_0915_【ACME】定例 7-6.txt",
+  "project": "acme"
+}
+## 20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt
+---
+title: 【ACME】定例 7/6
+date: 2026-07-06
+start: "09:15"
+end: "10:00"
+organization: ACME
+project: acme
+source_session: 20260706-091500
+---
+
+[00:00]
+ACMEの件です
+
+[02:01]
+次の議題に移ります
+
+## 20260706-091500/transcripts/mic_000.json
+{"text": "", "segments": [{"start": 10.0, "end": 12.0, "text": "承知しました"}, {"start": 60.0, "end": 62.0, "text": "私はあなたを愛しています"}]}
+## 20260706-091500/transcripts/mic_000.vad.json
+[[9.5, 13.0]]
+## 20260706-091500/transcripts/teams_000.json
+{"text": "", "segments": [{"start": 0.0, "end": 4.0, "text": "エーシーエムイーの件です"}, {"start": 30.0, "end": 33.0, "text": "ご視聴ありがとうございました"}]}
+## 20260706-091500/transcripts/teams_001.json
+{"text": "", "segments": [{"start": 1.0, "end": 3.0, "text": "次の議題に移ります"}]}
+## 20260707-140000/meta.json
+{
+  "session_id": "20260707-140000",
+  "started_at": "<TS>",
+  "mode": "live",
+  "tracks": [
+    "teams"
+  ],
+  "exported_at": "<TS>",
+  "exported_to": "<TMP>/out/transcript/beta/260707_1400.txt",
+  "project": "beta",
+  "title": "Beta 振り返り"
+}
+## 20260707-140000/transcripts/260707_1400_Beta 振り返り.txt
+[00:02]
+Beta の進捗確認
+
+## 20260707-140000/transcripts/teams_000.json
+{"text": "", "segments": [{"start": 2.0, "end": 5.0, "text": "Beta の進捗確認"}]}

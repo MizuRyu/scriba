@@ -1,0 +1,41 @@
+フィルタ除去: 1セグメント
+再生成: <TMP>/home/sessions/20260706-091500/transcripts/260706_0915.txt
+
+=====
+再生成: <TMP>/home/sessions/20260707-140000/transcripts/260707_1400.txt
+
+=====
+照合: 【ACME】定例 7/6
+更新: <TMP>/home/sessions/20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt
+プロジェクト: acme
+組織: ACME
+警告: カレンダーデータが古い可能性があります（<TMP>/calendar.json の更新を確認）
+
+=====
+自動録音: 無効
+停止中
+未転送 2 件（scriba export <id> --project <案件>）
+
+=====
+転送: <TMP>/out/transcript/acme/260706_0915_【ACME】定例 7-6.txt (project: acme)
+完了: 1件転送
+
+=====
+転送: <TMP>/out/transcript/beta/260707_1400.txt (project: beta)
+完了: 1件転送
+
+=====
+自動録音: 無効
+停止中
+
+=====
+会議名を設定: 20260707-140000 → Beta 振り返り
+
+=====
+フィルタ除去: 1セグメント
+再生成: <TMP>/home/sessions/20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt
+
+=====
+辞書: <TMP>/home/dict.yaml
+用語: 0件 / 置換: 1件
+[OK] initial-prompt なし（priority: high の用語が未登録）

@@ -1,0 +1,158 @@
+200
+<div hx-get="/partial/sessions" hx-trigger="every 5s" hx-swap="innerHTML" hx-target="#content"><div class="session-list-item" hx-get="/partial/session/20260707-140000" hx-target="#content" hx-swap="innerHTML" style="cursor:pointer"><div class="sl-top"><div><span class="sl-date">2026/07/07</span><span class="sl-time">14:00</span></div><div class="sl-stats">0 chunks</div></div><div class="sl-preview"></div></div>
+<div class="session-list-item" hx-get="/partial/session/20260706-091500" hx-target="#content" hx-swap="innerHTML" style="cursor:pointer"><div class="sl-top"><div><span class="sl-date">2026/07/06</span><span class="sl-time">09:15 - 09:59 · 0h44m</span><span class=sl-time>【ACME】定例 7/6</span></div><div class="sl-stats"><span class=sl-badge>acme</span> · 2 chunks · 23 字</div></div><div class="sl-preview">ACMEの件です承知しました次の議題に移ります</div></div></div>
+=====
+200
+<div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <button class="back" hx-get="/partial/sessions" hx-target="#content" hx-swap="innerHTML"
+            onclick="document.getElementById('nav-sessions').classList.add('active')">← Sessions</button>
+    <button class="theme-toggle" onclick="discardSession('20260706-091500')">Discard…</button>
+  </div>
+  <div class="detail-date">2026/07/06</div>
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+    <input id="d-title" value="【ACME】定例 7/6" placeholder="会議名を入力"
+           style="flex:1;background:transparent;border:1px solid var(--border);border-radius:0.375rem;padding:0.25rem 0.5rem;font-size:0.9375rem;font-family:inherit;color:var(--fg)">
+    <button class="ghost-btn" onclick="saveTitle('20260706-091500')" style="margin-top:0;white-space:nowrap">保存</button>
+  </div>
+  <div class="detail-time-range">09:15 - 09:59 · 44 min</div>
+  <div class="detail-filename">sessions/20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt</div>
+  <div class="meta-row">
+    <div><div class="meta-label">Chunks</div><div class="meta-value">2</div></div>
+    <div><div class="meta-label">Characters</div><div class="meta-value">23</div></div>
+    <div><div class="meta-label">Process Time</div><div class="meta-value">11.0s</div></div>
+    <div><div class="meta-label">RTF</div><div class="meta-value">0.046</div></div>
+    <div><div class="meta-label">Project</div><div class="meta-value"><span class="sl-badge">acme</span></div></div>
+    <div><div class="meta-label">Export</div><div class="meta-value"><select id="export-proj-20260706-091500" style="font-size:0.8125rem;padding:0.125rem 0.25rem;border:1px solid var(--border);border-radius:0.25rem;background:var(--card);color:var(--fg)"><option value="">未分類</option><option value="acme" selected>acme</option><option value="beta">beta</option></select> <button class="ghost-btn" onclick="exportWithProject('20260706-091500')">転送</button></div></div>
+  </div>
+  <div style="margin:0.75rem 0 0.25rem;font-size:0.8125rem;color:var(--muted)">トラック</div><div class="detail-tabs"><button class="detail-tab active" onclick="remerge('20260706-091500','both')">両方</button><button class="detail-tab" onclick="remerge('20260706-091500','system')">相手のみ</button><button class="detail-tab" onclick="remerge('20260706-091500','mic')">自分のみ</button></div>
+  <div class="detail-tabs">
+    <button class="detail-tab active" onclick="showDetailView('transcript', this)">Transcript</button>
+    <button class="detail-tab" onclick="showDetailView('session-perf', this)">Performance</button>
+  </div>
+  <div id="detail-transcript" class="detail-view active"><div class="t-chunk"><div class="t-time">[00:00] [相手]</div><p class="t-text">ACMEの件です</p></div>
+<div class="t-chunk"><div class="t-time">[00:10] [自分]</div><p class="t-text">承知しました</p></div>
+<div class="t-chunk"><div class="t-time">[02:01] [相手]</div><p class="t-text">次の議題に移ります</p></div></div>
+  <div id="detail-session-perf" class="detail-view"><div class="sparkline-row"><div class="spark" style="height:100%" data-label="teams_000: 6.0s"></div><div class="spark" style="height:83%" data-label="mic_000: 5.0s"></div></div><div class="perf-stats"><span>Avg: <strong>5.5s</strong></span><span>Min: <strong>5.0s</strong></span><span>Max: <strong>6.0s</strong></span><span>RTF: <strong>0.046</strong></span></div></div>
+</div>
+=====
+200
+<div class="sub-nav">
+  <button class="sub-nav-link active" onclick="showSubTab('dict')">Dictionary</button>
+  <button class="sub-nav-link" onclick="showSubTab('enrich')">Enrich</button>
+</div>
+<div id="sub-dict" class="sub-view active">
+    <div id="dict-editor">
+      <div class="perf-section">
+        <div class="perf-section-title">認識ヒント（用語）</div>
+        <div class="dict-hint">Whisperに事前に渡す頻出語。人名・プロジェクト名・専門用語など。上限あり（224トークン）。<span id="dict-prompt-status" class="dict-status ok"></span></div>
+        <div id="terms-list"><div class="dict-row"><input class="term-word" value="" placeholder="用語（例: 山田）" oninput="onDictInput()"><button class="row-del" onclick="this.closest('.dict-row').remove(); onDictInput()">×</button></div></div>
+        <button class="ghost-btn" onclick="addRow('terms-list', 'term')">+ 用語を追加</button>
+        <div class="dict-prompt-preview" id="dict-prompt-preview"></div>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">置換ルール</div>
+        <div class="dict-hint">文字起こし後に「誤 → 正」で一括置換。件数制限なし。誤変換された固有名詞の修正に。</div>
+        <div id="repl-list"><div class="dict-row"><input class="repl-from" value="エーシーエムイー" placeholder="誤（例: バックローリー）" oninput="onDictInput()"><span class="dict-arrow">→</span><input class="repl-to" value="ACME" placeholder="正（例: バックログ）" oninput="onDictInput()"><button class="row-del" onclick="this.closest('.dict-row').remove(); onDictInput()">×</button></div></div>
+        <button class="ghost-btn" onclick="addRow('repl-list', 'repl')">+ 置換を追加</button>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">フィルタ（この発話だけのセグメントを除去）</div>
+        <div class="dict-hint">セグメントがこの文字列だけ（前後空白・末尾の句読点を除く）のとき combined から除去。幻聴定型や単独の相槌向け。デフォルトとユーザー登録分の和集合で除去されます。</div>
+        <div class="dict-default-label">内蔵デフォルト（編集不可）</div>
+        <div id="filter-default-list" class="dict-default-list"><span class="dict-default-item">ご視聴ありがとうございました</span><span class="dict-default-item">次回予告</span><span class="dict-default-item">次の動画でお会いしましょう</span><span class="dict-default-item">チャンネル登録お願いします</span><span class="dict-default-item">はい</span><span class="dict-default-item">私はあなたを愛しています</span><span class="dict-default-item">私は彼らを愛しています</span><span class="dict-default-item">彼らは私を見つけました</span><span class="dict-default-item">私は彼らを見つけました</span><span class="dict-default-item">私は、私の動画を撮影しています</span><span class="dict-default-item">このように</span><span class="dict-default-item">おやすみなさい</span><span class="dict-default-item">音量を調整します</span><span class="dict-default-item">早送り</span></div>
+        <div class="dict-default-label">ユーザー登録</div>
+        <div id="filter-list"><div class="dict-row"><input class="filter-value" value="" placeholder="除去する発話（例: ありがとうございました）"><button class="row-del" onclick="this.closest('.dict-row').remove()">×</button></div></div>
+        <button class="ghost-btn" onclick="addRow('filter-list', 'filter')">+ フィルタを追加</button>
+      </div>
+      <div class="dict-actions">
+        <button class="primary-btn" onclick="saveDict()">保存</button>
+        <span class="dict-status" id="dict-save-status"></span>
+        <span class="detail-filename" id="dict-path" style="margin-left:auto"><TMP>/home/dict.yaml</span>
+      </div>
+    </div>
+</div>
+<div id="sub-enrich" class="sub-view">
+    <div id="enrich-editor">
+      <div class="perf-section">
+        <div class="perf-section-title">カレンダーパス</div>
+        <div class="dict-hint">予定の取得元（json のファイル、ics のファイルまたは URL）。config.toml の calendar_source と calendar_path で変更する。</div>
+        <div class="dict-row">
+          <input id="enrich-calendar-path" value="<TMP>/calendar.json" readonly style="flex:1;background:var(--light);color:var(--muted);cursor:default">
+        </div>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">組織マッピング</div>
+        <div class="dict-hint">メールアドレスのドメインから組織名を推定するマッピング。</div>
+        <div id="enrich-orgs-list"><div class="dict-row"><input class="enrich-org-domain" value="acme.example" placeholder="ドメイン（例: example.com）"><span class="dict-arrow">→</span><input class="enrich-org-name" value="ACME" placeholder="組織名（例: Example 社）"><button class="row-del" onclick="this.closest('.dict-row').remove()">×</button></div></div>
+        <button class="ghost-btn" onclick="addEnrichOrg()">+ 組織を追加</button>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">プロジェクトマッピング</div>
+        <div class="dict-hint">会議タイトルのキーワードからプロジェクトを推定するルール。上から順に評価されます。</div>
+        <div id="enrich-projects-list"><div class="dict-row"><input class="enrich-proj-alias" value="acme" placeholder="エイリアス（例: acme）" style="flex:0.6"><input class="enrich-proj-keywords" value="ACME" placeholder="キーワード（カンマ区切り）" style="flex:1"><button class="order-btn" onclick="moveEnrichRow(this, -1)">↑</button><button class="order-btn" onclick="moveEnrichRow(this, 1)">↓</button><button class="row-del" onclick="this.closest('.dict-row').remove()">×</button></div><div class="dict-row"><input class="enrich-proj-alias" value="beta" placeholder="エイリアス（例: acme）" style="flex:0.6"><input class="enrich-proj-keywords" value="Beta" placeholder="キーワード（カンマ区切り）" style="flex:1"><button class="order-btn" onclick="moveEnrichRow(this, -1)">↑</button><button class="order-btn" onclick="moveEnrichRow(this, 1)">↓</button><button class="row-del" onclick="this.closest('.dict-row').remove()">×</button></div></div>
+        <button class="ghost-btn" onclick="addEnrichProject()">+ プロジェクトを追加</button>
+      </div>
+      <div class="dict-actions">
+        <button class="primary-btn" onclick="saveEnrich()">保存</button>
+        <span class="dict-status" id="enrich-save-status"></span>
+      </div>
+    </div>
+</div>
+=====
+200
+<div class="kpi-row"><div class="kpi"><div class="kpi-label">Sessions</div><div class="kpi-value">2</div><div class="kpi-sub">total</div></div><div class="kpi"><div class="kpi-label">Duration</div><div class="kpi-value">0.1h</div><div class="kpi-sub">recorded</div></div><div class="kpi"><div class="kpi-label">Characters</div><div class="kpi-value">23</div><div class="kpi-sub">transcribed</div></div><div class="kpi"><div class="kpi-label">Avg RTF</div><div class="kpi-value">0.046</div><div class="kpi-sub">process / audio</div></div></div><div class="perf-section"><div class="perf-section-title">Processing Time Trend</div><div class="sparkline-row"><div class="spark" style="height:100%" data-label="20260706-091500/teams_000: 6.0s"></div><div class="spark" style="height:83%" data-label="20260706-091500/mic_000: 5.0s"></div></div><div class="perf-stats"><span>Model: <strong>whisper-large-v3-turbo</strong></span><span>Chunk: <strong>120s</strong></span><span>Sample Rate: <strong>16.0kHz</strong></span></div></div><div class="perf-section"><div class="perf-section-title">Session History</div><table class="perf-table"><tr><th>Date</th><th>Time</th><th class="num">Duration</th><th class="num">Chunks</th><th class="num">RTF</th><th class="num">Chars</th></tr><tr><td>2026/07/07</td><td>14:00</td><td class="num">—</td><td class="num">0</td><td class="num">—</td><td class="num">—</td></tr><tr><td>2026/07/06</td><td>09:15 - 09:59</td><td class="num">44 min</td><td class="num">2</td><td class="num">0.046</td><td class="num">23</td></tr></table></div>
+=====
+200
+<TMP>/home/sessions/20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt
+=====
+200
+<div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <button class="back" hx-get="/partial/sessions" hx-target="#content" hx-swap="innerHTML"
+            onclick="document.getElementById('nav-sessions').classList.add('active')">← Sessions</button>
+    <button class="theme-toggle" onclick="discardSession('20260706-091500')">Discard…</button>
+  </div>
+  <div class="detail-date">2026/07/06</div>
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+    <input id="d-title" value="【ACME】定例 7/6" placeholder="会議名を入力"
+           style="flex:1;background:transparent;border:1px solid var(--border);border-radius:0.375rem;padding:0.25rem 0.5rem;font-size:0.9375rem;font-family:inherit;color:var(--fg)">
+    <button class="ghost-btn" onclick="saveTitle('20260706-091500')" style="margin-top:0;white-space:nowrap">保存</button>
+  </div>
+  <div class="detail-time-range">09:15 - 09:59 · 44 min</div>
+  <div class="detail-filename">sessions/20260706-091500/transcripts/260706_0915_【ACME】定例 7-6.txt</div>
+  <div class="meta-row">
+    <div><div class="meta-label">Chunks</div><div class="meta-value">2</div></div>
+    <div><div class="meta-label">Characters</div><div class="meta-value">6</div></div>
+    <div><div class="meta-label">Process Time</div><div class="meta-value">11.0s</div></div>
+    <div><div class="meta-label">RTF</div><div class="meta-value">0.046</div></div>
+    <div><div class="meta-label">Project</div><div class="meta-value"><span class="sl-badge">acme</span></div></div>
+    <div><div class="meta-label">Export</div><div class="meta-value"><select id="export-proj-20260706-091500" style="font-size:0.8125rem;padding:0.125rem 0.25rem;border:1px solid var(--border);border-radius:0.25rem;background:var(--card);color:var(--fg)"><option value="">未分類</option><option value="acme" selected>acme</option><option value="beta">beta</option></select> <button class="ghost-btn" onclick="exportWithProject('20260706-091500')">転送</button></div></div>
+  </div>
+  <div style="margin:0.75rem 0 0.25rem;font-size:0.8125rem;color:var(--muted)">トラック</div><div class="detail-tabs"><button class="detail-tab" onclick="remerge('20260706-091500','both')">両方</button><button class="detail-tab" onclick="remerge('20260706-091500','system')">相手のみ</button><button class="detail-tab active" onclick="remerge('20260706-091500','mic')">自分のみ</button></div>
+  <div class="detail-tabs">
+    <button class="detail-tab active" onclick="showDetailView('transcript', this)">Transcript</button>
+    <button class="detail-tab" onclick="showDetailView('session-perf', this)">Performance</button>
+  </div>
+  <div id="detail-transcript" class="detail-view active"><div class="t-chunk"><div class="t-time">[00:10]</div><p class="t-text">承知しました</p></div></div>
+  <div id="detail-session-perf" class="detail-view"><div class="sparkline-row"><div class="spark" style="height:100%" data-label="teams_000: 6.0s"></div><div class="spark" style="height:83%" data-label="mic_000: 5.0s"></div></div><div class="perf-stats"><span>Avg: <strong>5.5s</strong></span><span>Min: <strong>5.0s</strong></span><span>Max: <strong>6.0s</strong></span><span>RTF: <strong>0.046</strong></span></div></div>
+</div>
+=====
+200
+Beta 定例
+=====
+200
+{"skipped": true, "reason": "no combined file"}
+=====
+200
+{"skipped": true, "reason": "no combined file"}
+=====
+200
+{"terms": [{"word": "ACME"}], "replacements": [], "filters": [], "default_filters": ["ご視聴ありがとうございました", "次回予告", "次の動画でお会いしましょう", "チャンネル登録お願いします", "はい", "私はあなたを愛しています", "私は彼らを愛しています", "彼らは私を見つけました", "私は彼らを見つけました", "私は、私の動画を撮影しています", "このように", "おやすみなさい", "音量を調整します", "早送り"], "prompt": "会議の用語: ACME", "verdict": "ok", "message": "11文字（上限の目安120文字以内）", "path": "<TMP>/home/dict.yaml"}
+=====
+200
+{"calendar_path": "<TMP>/calendar.json", "organizations": {"acme.example": "ACME"}, "projects": [{"alias": "acme", "keywords": ["ACME", "エーシー"]}]}
+=====
+200
+<div hx-get="/partial/sessions" hx-trigger="every 5s" hx-swap="innerHTML" hx-target="#content"><div class="session-list-item" hx-get="/partial/session/20260707-140000" hx-target="#content" hx-swap="innerHTML" style="cursor:pointer"><div class="sl-top"><div><span class="sl-date">2026/07/07</span><span class="sl-time">14:00</span><span class=sl-time>Beta 定例</span></div><div class="sl-stats"><span class=sl-badge-muted>unclassified</span>0 chunks</div></div><div class="sl-preview"></div></div>
+<div class="session-list-item" hx-get="/partial/session/20260706-091500" hx-target="#content" hx-swap="innerHTML" style="cursor:pointer"><div class="sl-top"><div><span class="sl-date">2026/07/06</span><span class="sl-time">09:15 - 09:59 · 0h44m</span><span class=sl-time>【ACME】定例 7/6</span></div><div class="sl-stats"><span class=sl-badge>acme</span> · 2 chunks · 6 字</div></div><div class="sl-preview">承知しました</div></div></div>

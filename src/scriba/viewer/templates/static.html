@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scriba</title>
+<style>
+__CSS__
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Scriba</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">◑ Theme</button>
+  </div>
+  <div class="header-sub">Meeting Transcription · <span id="generated-at"></span></div>
+  <div class="nav">
+    <button class="nav-link active" data-view="sessions" onclick="location.hash='sessions'">Sessions</button>
+    <button class="nav-link" data-view="performance" onclick="location.hash='performance'">Performance</button>
+    <button class="nav-link" data-view="settings" onclick="location.hash='settings'">Settings</button>
+  </div>
+  <div id="view-sessions" class="view active">
+    <div id="session-list"></div>
+    <div id="session-detail" style="display:none">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="back" onclick="location.hash='sessions'">← Sessions</button>
+        <button class="theme-toggle" id="discard-btn" onclick="copyDiscard()">Discard…</button>
+      </div>
+      <div class="detail-date" id="d-date"></div>
+      <div id="d-title-row" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+        <input id="d-title" placeholder="会議名を入力" style="flex:1;background:transparent;border:1px solid var(--border);border-radius:0.375rem;padding:0.25rem 0.5rem;font-size:0.9375rem;font-family:inherit;color:var(--fg)">
+        <button class="ghost-btn" id="d-title-save" onclick="saveTitle()" style="margin-top:0;white-space:nowrap">保存</button>
+      </div>
+      <div class="detail-time-range" id="d-time"></div>
+      <div class="detail-filename" id="d-filename"></div>
+      <div class="meta-row">
+        <div><div class="meta-label">Chunks</div><div class="meta-value" id="d-chunks"></div></div>
+        <div><div class="meta-label">Characters</div><div class="meta-value" id="d-chars"></div></div>
+        <div><div class="meta-label">Process Time</div><div class="meta-value" id="d-ptime"></div></div>
+        <div><div class="meta-label">RTF</div><div class="meta-value" id="d-rtf"></div></div>
+      </div>
+      <div class="detail-tabs">
+        <button class="detail-tab active" data-dv="transcript" onclick="showDetailView('transcript', this)">Transcript</button>
+        <button class="detail-tab" data-dv="session-perf" onclick="showDetailView('session-perf', this)">Performance</button>
+      </div>
+      <div id="detail-transcript" class="detail-view active"></div>
+      <div id="detail-session-perf" class="detail-view"></div>
+    </div>
+  </div>
+  <div id="view-performance" class="view">
+    <div class="kpi-row" id="kpi-row"></div>
+    <div class="perf-section">
+      <div class="perf-section-title">Processing Time Trend</div>
+      <div class="sparkline-row" id="trend"></div>
+      <div class="perf-stats" id="trend-stats"></div>
+    </div>
+    <div class="perf-section">
+      <div class="perf-section-title">Session History</div>
+      <table class="perf-table" id="history"></table>
+    </div>
+  </div>
+  <div id="view-settings" class="view">
+    <div class="sub-nav">
+      <button class="sub-nav-link active" data-sub="dict" onclick="showSubTab('dict')">Dictionary</button>
+      <button class="sub-nav-link" data-sub="enrich" onclick="showSubTab('enrich')">Enrich</button>
+    </div>
+    <div id="sub-dict" class="sub-view active">
+    <div id="dict-readonly-note" class="empty" style="display:none">
+      辞書の編集はサーバーモードでのみ可能です。ターミナルで <strong>scriba view --serve</strong> を実行してください。（静的HTMLはファイルを保存できません）
+    </div>
+    <div id="dict-editor" style="display:none">
+      <div class="perf-section">
+        <div class="perf-section-title">認識ヒント（用語）</div>
+        <div class="dict-hint">音声認識に渡す頻出語。Haasは「Haas=ハース」の形で読みを添えられます。Whisperは上限224トークン。<span id="dict-prompt-status" class="dict-status"></span></div>
+        <div id="terms-list"></div>
+        <button class="ghost-btn" onclick="addTerm()">+ 用語を追加</button>
+        <div class="dict-prompt-preview" id="dict-prompt-preview"></div>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">置換ルール</div>
+        <div class="dict-hint">文字起こし後に「誤 → 正」で一括置換。件数制限なし。誤変換された固有名詞の修正に。</div>
+        <div id="repl-list"></div>
+        <button class="ghost-btn" onclick="addRepl()">+ 置換を追加</button>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">フィルタ（この発話だけのセグメントを除去）</div>
+        <div class="dict-hint">セグメントがこの文字列だけ（前後空白・末尾の句読点を除く）のとき combined から除去。幻聴定型や単独の相槌向け。デフォルトとユーザー登録分の和集合で除去されます。</div>
+        <div class="dict-default-label">内蔵デフォルト（編集不可）</div>
+        <div id="filter-default-list" class="dict-default-list"></div>
+        <div class="dict-default-label">ユーザー登録</div>
+        <div id="filter-list"></div>
+        <button class="ghost-btn" onclick="addFilter()">+ フィルタを追加</button>
+      </div>
+      <div class="dict-actions">
+        <button class="primary-btn" onclick="saveDict()">保存</button>
+        <span class="dict-status" id="dict-save-status"></span>
+        <span class="detail-filename" id="dict-path" style="margin-left:auto"></span>
+      </div>
+    </div>
+  </div>
+  <div id="sub-enrich" class="sub-view">
+    <div id="enrich-readonly-note" class="empty" style="display:none">
+      設定の編集はサーバーモードでのみ可能です。ターミナルで <strong>scriba view --serve</strong> を実行してください。
+    </div>
+    <div id="enrich-editor" style="display:none">
+      <div class="perf-section">
+        <div class="perf-section-title">カレンダーパス</div>
+        <div class="dict-hint">予定の取得元（json のファイル、ics のファイルまたは URL）。config.toml の calendar_source と calendar_path で変更する。</div>
+        <div class="dict-row">
+          <input id="enrich-calendar-path" readonly style="flex:1;background:var(--light);color:var(--muted);cursor:default">
+        </div>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">組織マッピング</div>
+        <div class="dict-hint">メールアドレスのドメインから組織名を推定するマッピング。</div>
+        <div id="enrich-orgs-list"></div>
+        <button class="ghost-btn" onclick="addEnrichOrg()">+ 組織を追加</button>
+      </div>
+      <div class="perf-section">
+        <div class="perf-section-title">プロジェクトマッピング</div>
+        <div class="dict-hint">会議タイトルのキーワードからプロジェクトを推定するルール。上から順に評価されます。</div>
+        <div id="enrich-projects-list"></div>
+        <button class="ghost-btn" onclick="addEnrichProject()">+ プロジェクトを追加</button>
+      </div>
+      <div class="dict-actions">
+        <button class="primary-btn" onclick="saveEnrich()">保存</button>
+        <span class="dict-status" id="enrich-save-status"></span>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+<script>
+__APP_JS__
+</script>
+</body>
+</html>

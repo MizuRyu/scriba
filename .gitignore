@@ -1,0 +1,28 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+
+# ローカル設定・認証情報
+.env
+.env.*
+!.env.example
+
+# 作業フォルダ（下書き、調査ダンプ、実データのバックアップ）
+z-ai/
+
+# グローバルの git ignore が flake.nix を除外していても、このリポジトリでは追跡する
+!flake.nix
+!flake.lock
+
+# .claude はスキルの symlink（.agents/skills）だけ追跡し、ローカル設定は追跡しない
+.claude/*
+!.claude/skills
+
+# グローバルの git ignore が .agents を除外していても、スキルは追跡する
+!.agents/
+
+# 共有用の zip（just zip）
+dist/

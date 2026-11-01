@@ -1,0 +1,123 @@
+{
+ "generated_at": "<NOW>",
+ "model": "whisper-large-v3-turbo",
+ "chunk_duration": 120,
+ "sample_rate": 16000,
+ "sessions": [
+  {
+   "id": "20260707-140000",
+   "filename": "",
+   "title": "",
+   "date": "2026/07/07",
+   "time_range": "14:00",
+   "duration_min": null,
+   "duration_display": "—",
+   "chunks": 0,
+   "chars": 0,
+   "process_time_sec": 0,
+   "rtf": null,
+   "preview": "",
+   "transcript": "",
+   "per_chunk": [],
+   "project": null,
+   "exported": false,
+   "has_mic": false,
+   "track_filter": "both"
+  },
+  {
+   "id": "20260706-091500",
+   "filename": "260706_0915_【ACME】定例 7-6.txt",
+   "title": "【ACME】定例 7/6",
+   "date": "2026/07/06",
+   "time_range": "09:15 - 09:59",
+   "duration_min": 44,
+   "duration_display": "0h44m",
+   "chunks": 2,
+   "chars": 23,
+   "process_time_sec": 11.0,
+   "rtf": 0.046,
+   "preview": "ACMEの件です承知しました次の議題に移ります",
+   "transcript": "\n[00:00] [相手]\nACMEの件です\n\n[00:10] [自分]\n承知しました\n\n[02:01] [相手]\n次の議題に移ります\n",
+   "per_chunk": [
+    {
+     "chunk": "teams_000",
+     "sec": 6.0
+    },
+    {
+     "chunk": "mic_000",
+     "sec": 5.0
+    }
+   ],
+   "project": "acme",
+   "exported": false,
+   "has_mic": true,
+   "track_filter": "both"
+  }
+ ],
+ "kpi": {
+  "sessions": 2,
+  "hours": 0.1,
+  "chars": 23,
+  "avg_rtf": 0.046
+ },
+ "trend": [
+  {
+   "label": "20260706-091500/teams_000",
+   "sec": 6.0
+  },
+  {
+   "label": "20260706-091500/mic_000",
+   "sec": 5.0
+  }
+ ],
+ "dict": {
+  "terms": [],
+  "replacements": [
+   {
+    "from": "エーシーエムイー",
+    "to": "ACME"
+   }
+  ],
+  "filters": [],
+  "default_filters": [
+   "ご視聴ありがとうございました",
+   "次回予告",
+   "次の動画でお会いしましょう",
+   "チャンネル登録お願いします",
+   "はい",
+   "私はあなたを愛しています",
+   "私は彼らを愛しています",
+   "彼らは私を見つけました",
+   "私は彼らを見つけました",
+   "私は、私の動画を撮影しています",
+   "このように",
+   "おやすみなさい",
+   "音量を調整します",
+   "早送り"
+  ],
+  "prompt": "",
+  "verdict": "ok",
+  "message": "initial-prompt なし（priority: high の用語が未登録）",
+  "path": "<TMP>/home/dict.yaml"
+ },
+ "enrich": {
+  "calendar_path": "<TMP>/calendar.json",
+  "organizations": {
+   "acme.example": "ACME"
+  },
+  "projects": [
+   {
+    "alias": "acme",
+    "keywords": [
+     "ACME"
+    ]
+   },
+   {
+    "alias": "beta",
+    "keywords": [
+     "Beta"
+    ]
+   }
+  ]
+ }
+}

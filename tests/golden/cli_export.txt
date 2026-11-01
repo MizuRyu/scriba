@@ -1,0 +1,23 @@
+## transcript/acme/260706_0915_【ACME】定例 7-6.txt
+---
+title: 【ACME】定例 7/6
+date: 2026-07-06
+start: "09:15"
+end: "10:00"
+organization: ACME
+project: acme
+source_session: 20260706-091500
+---
+
+[00:00] [相手]
+ACMEの件です
+
+[00:10] [自分]
+承知しました
+
+[02:01] [相手]
+次の議題に移ります
+
+## transcript/beta/260707_1400.txt
+[00:02]
+Beta の進捗確認

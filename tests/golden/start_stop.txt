@@ -1,0 +1,18 @@
+会議: 【ACME】臨時
+録音開始（live）: <SID>
+停止: scriba stop
+
+=====
+再生成: <TMP>/home/sessions/<SID>/transcripts/<STEM>_【ACME】臨時.txt
+
+=====
+enrich: <TMP>/home/sessions/<SID>/transcripts/<STEM>_【ACME】臨時.txt
+export: <TMP>/out/transcript/acme/<STEM>_【ACME】臨時.txt
+録音停止: <SID>
+文字起こし: <TMP>/home/sessions/<SID>/transcripts/<STEM>_【ACME】臨時.txt
+
+=====
+<PY> -m scriba record <SID> --mic
+<PY> -m scriba worker <SID>
+=====
+['Speakers']

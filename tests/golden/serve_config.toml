@@ -1,0 +1,13 @@
+model = "mlx-community/whisper-large-v3-turbo"
+capture_mic = true
+export_dir = "<TMP>/out"
+calendar_path = "<TMP>/calendar.json"
+
+[enrich]
+
+[enrich.organizations]
+"acme.example" = "ACME"
+
+[[enrich.projects]]
+alias = "acme"
+keywords = ["ACME", "エーシー"]

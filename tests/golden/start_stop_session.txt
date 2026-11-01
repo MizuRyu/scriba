@@ -1,0 +1,48 @@
+## chunks/system_000.wav
+
+## meta.json
+{
+  "session_id": "<SID>",
+  "started_at": "<TS>",
+  "mode": "live",
+  "chunk_duration": 120,
+  "model": "mlx-community/whisper-large-v3-turbo",
+  "tracks": [
+    "system",
+    "mic"
+  ],
+  "enrich": {
+    "id": "evt-now",
+    "subject": "【ACME】臨時",
+    "start": "<TS>.0000000",
+    "end": "<TS>.0000000",
+    "organizer": "alice@sales.acme.example",
+    "showAs": "busy"
+  },
+  "title": "【ACME】臨時",
+  "stopped_at": "<TS>",
+  "exported_at": "<TS>",
+  "exported_to": "<TMP>/out/transcript/acme/<STEM>_【ACME】臨時.txt",
+  "project": "acme"
+}
+## record.log
+
+## stopping
+
+## transcripts/<STEM>_【ACME】臨時.txt
+---
+title: 【ACME】臨時
+date: <DATE>
+start: "<HH:MM>"
+end: "<HH:MM>"
+organization: ACME
+project: acme
+source_session: <SID>
+---
+
+[00:01]
+臨時の議題です
+
+## transcripts/system_000.json
+{"text": "", "segments": [{"start": 1.0, "end": 3.0, "text": "臨時の議題です"}]}
+## worker.log
