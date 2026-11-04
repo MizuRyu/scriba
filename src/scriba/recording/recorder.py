@@ -127,13 +127,14 @@ def stop(cfg: Config, only_session: str | None = None) -> str:
     _terminate(state["record_pid"], sig=signal.SIGINT)
     audio.restore_output(state.get("prev_output"))
 
-    # 音声が1チャンクも録れていないセッションは保存しない
-    if not list((session / "chunks").glob("*.wav")):
+    unsaved = _unsaved_reason(cfg, state, session)
+    if unsaved:
+        notice, error = unsaved
         _terminate(state.get("worker_pid"))
         shutil.rmtree(session, ignore_errors=True)
         _release_state(cfg, session_id)
-        notify("Scriba", "音声が録音できませんでした（セッション破棄）")
-        raise RecorderError("音声が録音できませんでした。セッションを破棄しました")
+        notify("Scriba", notice)
+        raise RecorderError(error)
 
     reason = _consume_stop_reason(session)
     timed_out = reason == "timeout"
@@ -286,6 +287,17 @@ def _release_state(cfg: Config, session_id: str) -> None:
         return
     if current == session_id:
         cfg.state_file.unlink(missing_ok=True)
+
+
+def _unsaved_reason(cfg: Config, state: dict, session: Path) -> tuple[str, str] | None:
+    """保存せずに破棄するセッションなら、その（通知, エラー）の文言。"""
+    if not list((session / "chunks").glob("*.wav")):
+        return "音声が録音できませんでした（セッション破棄）", "音声が録音できませんでした。セッションを破棄しました"
+    # 待機画面だけや、誤って入った会議の録音
+    recorded_sec = (datetime.now() - datetime.fromisoformat(state["started_at"])).total_seconds()
+    if recorded_sec < cfg.min_keep_sec:
+        return f"{cfg.min_keep_sec}秒未満の録音のため破棄しました", f"{cfg.min_keep_sec}秒未満の録音のため、セッションを破棄しました"
+    return None
 
 
 def _consume_stop_reason(session: Path) -> str | None:

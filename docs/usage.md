@@ -61,7 +61,7 @@ scriba watch on
 会議アプリがマイクを使い始めて約 4 秒で録音を始め、使わなくなって約 10 秒で止める。
 
 - 会議アプリは `meeting_apps`（bundle id の接頭辞）で指定する。既定は Teams（`com.microsoft.teams`）。Zoom を足すなら `["com.microsoft.teams", "us.zoom.xos"]`
-- 参加前の待機画面でもアプリはマイクを開くので録音が始まる。60 秒未満で終わった自動録音は破棄する
+- 参加前の待機画面でもアプリはマイクを開くので録音が始まる。`min_keep_sec`（既定 60 秒）未満で終わった録音は破棄する
 - 会議中に手で止めた録音は、その会議では再開しない
 - **マイクの許可を持つアプリ（Raycast など）から有効にする。** 録音プロセスはマイクの許可を起動元から受け継ぐ。許可のないターミナルから起動すると無音で録れることがある
 - 再起動・ログアウトで常駐プロセスは止まる
@@ -137,6 +137,7 @@ export_subdir = "transcript/{project}"   # 既定
 | `cleanup_target` | `chunks` | `chunks`（WAV だけ削除）\| `all`（セッションごと削除） |
 | `max_recording_min` | `180` | 切り忘れ対策のタイムアウト（分） |
 | `auto_stop` | `true` | system・mic とも 2 分チャンク丸ごと発話がなければ自動停止 |
+| `min_keep_sec` | `60` | これより短い録音は停止時に破棄する（秒。0 で無効）。手動で始めた録音も対象 |
 | `serve_timeout_min` | `180` | `view --serve` の自動停止（分。0 で無効） |
 | `dict_path` | 空 | 辞書のパス（空なら `{base_dir}/dict.yaml`） |
 | `filters_enabled` | `true` | 幻聴定型・単独相槌のフィルタ |

@@ -33,6 +33,8 @@ class Config:
     # F1: タイムアウト
     max_recording_min: int = 180  # 3時間で強制停止
     auto_stop: bool = True  # systemのチャンクが丸ごと無音で、同じチャンクのmicにも発話がなければ自動停止
+    # 待機画面だけや、誤って入った会議の録音を残さない。これより短い録音は停止時に破棄（0で無効）
+    min_keep_sec: int = 60
     # F6: ビューアサーバーの自動停止（0で無効）
     serve_timeout_min: int = 180
     # F7: 辞書

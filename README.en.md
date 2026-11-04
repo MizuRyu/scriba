@@ -19,7 +19,7 @@ It records the other participants and you on separate tracks and merges them int
 - **Stays on your Mac.** Recording and transcription run locally; neither audio nor text is sent anywhere. The network is used only for the first model download and, if you configure one, a calendar URL.
 - **Two speakers.** The other participants come from system audio via BlackHole, you come from the microphone, and both are merged in time order.
 - **Readable during the meeting.** Each two-minute chunk is transcribed as soon as it is complete.
-- **Hands-free recording.** Recording starts when a meeting app begins using the microphone and stops when it releases it. Recordings shorter than 60 seconds (a waiting room) are discarded.
+- **Hands-free recording.** Recording starts when a meeting app begins using the microphone and stops when it releases it. Recordings shorter than 60 seconds (a waiting room or a meeting joined by mistake) are discarded; change this with `min_keep_sec`.
 - **Titles and projects.** Meeting titles come from iCalendar (.ics / URL) or JSON events; organization and project are inferred from email domains and keywords and written as frontmatter. Classification is rule-based; no LLM is involved.
 - **A dictionary that grows.** Proper nouns are passed as recognition hints, recurring misrecognitions are replaced, and boilerplate hallucinations are dropped. Past meetings can be rebuilt after you edit the dictionary.
 - **A viewer to read and fix.** A monochrome HTML viewer to read transcripts, edit the dictionary and settings, and pick a project to export to.

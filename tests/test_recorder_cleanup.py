@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from datetime import datetime, timedelta
 
 import pytest
 from conftest import write_transcript
@@ -90,7 +91,7 @@ def test_stop_does_not_announce_or_export_incomplete_transcription(cfg, monkeypa
     sid = "incomplete"
     sdir = _make_session(cfg, sid, transcribed=False)
     (sdir / "meta.json").write_text(json.dumps({"session_id": sid, "title": "定例"}))
-    cfg.state_file.write_text(json.dumps({"session_id": sid, "mode": "live", "record_pid": 123}))
+    cfg.state_file.write_text(json.dumps({"session_id": sid, "mode": "live", "record_pid": 123, "started_at": "2026-07-06T09:15:00"}))
     monkeypatch.setattr(recorder, "_alive", lambda _: True)
     monkeypatch.setattr(recorder, "_terminate", lambda *a, **kw: None)
     monkeypatch.setattr(recorder, "_wait_pid", lambda *a, **kw: None)
@@ -103,3 +104,38 @@ def test_stop_does_not_announce_or_export_incomplete_transcription(cfg, monkeypa
     assert not cfg.state_file.exists()
     assert (sdir / "chunks" / "teams_000.wav").exists()
     assert not any(message == "文字起こし完了" for _, message in messages)
+
+
+def _stop_after(cfg, monkeypatch, recorded_sec: float):
+    """recorded_sec 秒録った live セッションを stop する。"""
+    sid = "short"
+    sdir = _make_session(cfg, sid)
+    (sdir / "meta.json").write_text(json.dumps({"session_id": sid}))
+    started = datetime.now() - timedelta(seconds=recorded_sec)
+    cfg.state_file.write_text(json.dumps({
+        "session_id": sid, "mode": "live", "record_pid": 123,
+        "started_at": started.isoformat(timespec="seconds"),
+    }))
+    monkeypatch.setattr(recorder, "_alive", lambda _: True)
+    monkeypatch.setattr(recorder, "_terminate", lambda *a, **kw: None)
+    monkeypatch.setattr(recorder, "_wait_pid", lambda *a, **kw: None)
+    monkeypatch.setattr(recorder.audio, "restore_output", lambda _: None)
+    monkeypatch.setattr(recorder, "notify", lambda *args: None)
+    monkeypatch.setattr(recorder.enrich, "enrich_session", lambda *a: None)
+    return sdir
+
+
+def test_stop_discards_recording_shorter_than_min_keep(cfg, monkeypatch):
+    """手動で始めた録音でも、min_keep_sec より短ければ文字起こしせず破棄する。"""
+    sdir = _stop_after(cfg, monkeypatch, recorded_sec=30)
+    with pytest.raises(recorder.RecorderError, match="60秒未満"):
+        recorder.stop(cfg)
+    assert not sdir.exists()
+    assert not cfg.state_file.exists()
+
+
+def test_stop_keeps_short_recording_when_min_keep_is_zero(tmp_path, monkeypatch):
+    cfg = Config(base_dir=tmp_path, min_keep_sec=0)
+    sdir = _stop_after(cfg, monkeypatch, recorded_sec=30)
+    recorder.stop(cfg)
+    assert sdir.exists()

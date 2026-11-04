@@ -292,7 +292,11 @@ def test_start_stop_flow(home, capsys, monkeypatch):
     (home.parent / "calendar.json").write_text(json.dumps({"events": [event]}, ensure_ascii=False), encoding="utf-8")
 
     log = [run_cli(home, capsys, "start")]
-    sid = json.loads((home / "state.json").read_text(encoding="utf-8"))["session_id"]
+    state = json.loads((home / "state.json").read_text(encoding="utf-8"))
+    sid = state["session_id"]
+    # min_keep_sec で破棄されない長さの会議にする
+    state["started_at"] = (datetime.now() - timedelta(minutes=5)).isoformat(timespec="seconds")
+    (home / "state.json").write_text(json.dumps(state), encoding="utf-8")
     sdir = home / "sessions" / sid
     system = json.loads((sdir / "meta.json").read_text(encoding="utf-8"))["tracks"][0]
     (sdir / "chunks" / f"{system}_000.wav").write_bytes(b"")

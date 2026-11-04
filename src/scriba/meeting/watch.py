@@ -10,7 +10,6 @@ import signal
 import subprocess
 import sys
 import time
-from datetime import datetime
 
 from scriba.meeting import detect
 from scriba.recording import recorder
@@ -20,9 +19,8 @@ from scriba.notify import notify
 POLL_SEC = 2
 START_SEC = 4  # マイク使用がこれだけ続いたら会議開始
 STOP_SEC = 10  # マイク不使用がこれだけ続いたら会議終了
-# 参加前の待機画面でも会議アプリはマイクを開く（通話中と区別できない）。自動で開始して
-# これより短く終わったセッションは、参加せずに閉じたものとして破棄する
-MIN_KEEP_SEC = 60
+# 参加前の待機画面でも会議アプリはマイクを開く（通話中と区別できない）。待機だけで
+# 終わった短いセッションは、stop が min_keep_sec で破棄する
 _STARTED = "(start)"  # 開始を指示したがセッションをまだ見ていない
 
 
@@ -83,7 +81,6 @@ def run(cfg: Config) -> None:
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     detector = Detector()
     stops: list[subprocess.Popen] = []
-    auto: set[str] = set()  # watch が開始したセッション
     print("watch 開始", flush=True)
     while True:
         # 終わった stop を回収する（常駐し続けるので、回収しないと defunct が残る）
@@ -93,28 +90,9 @@ def run(cfg: Config) -> None:
         action = detector.step(time.monotonic(), detect.mic_in_use(cfg.meeting_apps), session)
         if action == "start":
             _start(cfg)
-            started = recorder.load_state(cfg)
-            if started:
-                auto.add(started["session_id"])
-        elif action == "stop" and session in auto and _age_sec(state) < MIN_KEEP_SEC:
-            auto.discard(session)
-            _discard(session)
         elif action == "stop":
-            auto.discard(session)
             stops.append(_stop(cfg, session))
         time.sleep(POLL_SEC)
-
-
-def _age_sec(state: dict) -> float:
-    return (datetime.now() - datetime.fromisoformat(state["started_at"])).total_seconds()
-
-
-def _discard(session_id: str) -> None:
-    print(f"会議に参加せず閉じたとみなし {session_id} を破棄", flush=True)
-    try:
-        subprocess.run([sys.executable, "-m", "scriba", "discard", session_id], timeout=60)
-    except subprocess.TimeoutExpired:
-        print("discard が応答しないため中断", flush=True)
 
 
 def _start(cfg: Config) -> None:
