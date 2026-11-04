@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta
 
 from scriba.meeting import detect
 from scriba.recording import recorder
@@ -117,7 +118,9 @@ def _start(cfg: Config) -> None:
 
 def _stop(cfg: Config, session_id: str) -> subprocess.Popen:
     print(f"会議の終了を検知。{session_id} を停止", flush=True)
-    (cfg.session_dir(session_id) / "meeting_end").touch()
+    # 検知はマイクが止まってから STOP_SEC 後。短い録音の判定は会議が終わった時刻で測らせる
+    ended = datetime.now() - timedelta(seconds=STOP_SEC)
+    (cfg.session_dir(session_id) / "meeting_end").write_text(ended.isoformat(timespec="seconds"), encoding="utf-8")
     # stop は後処理まで長くかかるので待たない（次の会議の開始を遅らせない）
     return subprocess.Popen(
         [sys.executable, "-m", "scriba", "stop", "--only-session", session_id],

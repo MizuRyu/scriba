@@ -139,3 +139,22 @@ def test_stop_keeps_short_recording_when_min_keep_is_zero(tmp_path, monkeypatch)
     sdir = _stop_after(cfg, monkeypatch, recorded_sec=30)
     recorder.stop(cfg)
     assert sdir.exists()
+
+
+def test_stop_measures_meeting_end_by_when_the_meeting_ended(cfg, monkeypatch):
+    """会議の終了で止めた録音は、検知の遅れを含めず、会議が終わった時刻までの長さで判定する。"""
+    sdir = _stop_after(cfg, monkeypatch, recorded_sec=65)
+    ended = datetime.now() - timedelta(seconds=10)
+    (sdir / "meeting_end").write_text(ended.isoformat(timespec="seconds"), encoding="utf-8")
+    with pytest.raises(recorder.RecorderError, match="60秒未満"):
+        recorder.stop(cfg)
+    assert not sdir.exists()
+
+
+def test_stop_reads_empty_meeting_end_flag(cfg, monkeypatch):
+    """終了時刻のない旧版の印でも、止めた時刻までの長さで判定して残す。"""
+    sdir = _stop_after(cfg, monkeypatch, recorded_sec=65)
+    (sdir / "meeting_end").touch()
+    recorder.stop(cfg)
+    assert sdir.exists()
+    assert json.loads((sdir / "meta.json").read_text())["stopped_reason"] == "meeting_end"

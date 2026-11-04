@@ -294,10 +294,19 @@ def _unsaved_reason(cfg: Config, state: dict, session: Path) -> tuple[str, str] 
     if not list((session / "chunks").glob("*.wav")):
         return "音声が録音できませんでした（セッション破棄）", "音声が録音できませんでした。セッションを破棄しました"
     # 待機画面だけや、誤って入った会議の録音
-    recorded_sec = (datetime.now() - datetime.fromisoformat(state["started_at"])).total_seconds()
+    recorded_sec = (_ended_at(session) - datetime.fromisoformat(state["started_at"])).total_seconds()
     if recorded_sec < cfg.min_keep_sec:
         return f"{cfg.min_keep_sec}秒未満の録音のため破棄しました", f"{cfg.min_keep_sec}秒未満の録音のため、セッションを破棄しました"
     return None
+
+
+def _ended_at(session: Path) -> datetime:
+    """会議の終了で止めたなら watch が書いた終了時刻、それ以外は今。"""
+    try:
+        return datetime.fromisoformat((session / "meeting_end").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        # 印がない、または終了時刻を書かない旧版の空の印
+        return datetime.now()
 
 
 def _consume_stop_reason(session: Path) -> str | None:
