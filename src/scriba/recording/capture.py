@@ -84,7 +84,10 @@ class _Track:
                 self.file = None
                 self.frames = 0
                 self.idx += 1
-                self._check_silence()
+                self._chunk_closed()
+
+    def _chunk_closed(self) -> None:
+        self._check_silence()
 
     def _check_silence(self) -> None:
         if self.peak < _SILENCE_PEAK and not self.silence_warned:
