@@ -25,9 +25,9 @@ src/scriba/
     worker.py         live モードの逐次文字起こし
   meeting/          自動録音
     watch.py          常駐プロセスと開始・停止の判定（Detector）
-    detect.py         アプリのマイク使用と既定の入力デバイス（CoreAudio）
+    detect.py         アプリのマイク使用と既定の入力デバイス（CoreAudio）、入力の無い時間（CoreGraphics）
   listen/           常時録音
-    resident.py       常駐プロセスと、入力デバイスの変化への追従
+    resident.py       常駐プロセス、入力デバイスの変化への追従、寝ている時間帯の休止
     track.py          既定の入力を録り、時が変わるたびにセッションを替えるトラック
     backlog.py        完成したチャンクの文字起こし、発話の無い音声とセッションの削除
   calendar/         予定の取得元（アダプタ）

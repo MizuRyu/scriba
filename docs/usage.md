@@ -99,11 +99,25 @@ scriba listen off    # 止める
 listen_yield_apps = ["com.example.voiceinput"]
 ```
 
+### 寝ている間は止める
+
+```toml
+listen_pause_idle_min = 30     # 入力も発話も 30 分無ければ、マイクを閉じる（0 で無効）
+listen_pause_from_hour = 0     # 閉じてよい時間帯の開始（時）
+listen_pause_until_hour = 6    # 閉じてよい時間帯の終了（時）
+```
+
+設定した時間帯の間に、キーボードとマウスの入力も発話も `listen_pause_idle_min` 分無ければ、マイクを閉じる。入力があるか、時間帯が終わると、マイクを開き直す。既定は無効。
+
+- マイクを閉じている間は録れない。その間にキーボードに触れずに話した分は残らない
+- 無操作でも、話している間は閉じない
+- 日付をまたぐ時間帯は `listen_pause_from_hour = 22`、`listen_pause_until_hour = 6` のように書く
+
 ### 止まるとき
 
 - `scriba listen off` は、文字起こし中のチャンクが終わってから反映される。その間はマイクも開いている
 - 再起動・ログアウトで常駐プロセスは止まる
-- Mac がスリープしている間は録れない。常時録音が入力を開いている間、macOS は操作が無くても自動ではスリープしない（画面は消える）。蓋を閉じるか、手でスリープさせたときだけスリープする
+- Mac がスリープしている間は録れない。常時録音がマイクを開いている間、macOS は操作が無くても自動ではスリープしない（画面は消える）。蓋を閉じるか、手でスリープさせたとき、または上の設定でマイクを閉じている間だけスリープする
 - 動いているかは `scriba status` の「常時録音: 動作中」で確かめる。ログは `{base_dir}/logs/listen.log`
 
 ## Raycast
@@ -187,6 +201,8 @@ export_subdir = "transcript/{project}"   # 既定
 | `export_subdir` | `transcript/{project}` | 転送先ルート配下のフォルダ |
 | `meeting_apps` | `["com.microsoft.teams"]` | 自動録音で会議中とみなすアプリ（bundle id の接頭辞） |
 | `listen_yield_apps` | `[]` | 常時録音で、マイクを使っている間は文字起こしを待つアプリ（bundle id の接頭辞） |
+| `listen_pause_idle_min` | `0` | 常時録音で、入力も発話も無い状態がこの分数だけ続いたらマイクを閉じる（0 で無効） |
+| `listen_pause_from_hour` / `listen_pause_until_hour` | `0` / `6` | マイクを閉じてよい時間帯（時）。開始が終了より後なら日付をまたぐ |
 | `[enrich.organizations]` | なし | メールドメイン → 組織名 |
 | `[[enrich.projects]]` | なし | 案件の `alias` と `keywords`（定義順に評価） |
 
