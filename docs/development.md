@@ -29,7 +29,7 @@ SCRIBA_HOME="$(mktemp -d)" uv run scriba status
 | 種類 | 置き場 | 内容 |
 |---|---|---|
 | golden | `tests/test_golden.py`、`tests/golden/` | 架空のセッションに対する CLI（start → merge → stop → enrich → export の流れ、status、title、dict）とビューア（静的 HTML のデータ、HTTP の全経路と編集 API）の出力を、期待値と突き合わせる。録音プロセス・出力デバイス・通知は差し替える。入口は CLI と HTTP だけなので、内部の構成を変えても同じテストで同等性を確かめられる |
-| 単体 | `tests/test_*.py` | 辞書、マージ、トラック名、カレンダーのアダプタ、分類、export、自動停止、自動録音の判定、通知 |
+| 単体 | `tests/test_*.py` | 辞書、マージ、トラック名、カレンダーのアダプタ、分類、export、自動停止、自動録音の判定、常時録音のセッションの切り替えと後始末、通知 |
 
 golden を更新するときは、差分が意図した変更だけであることを `git diff tests/golden` で確かめる。期待値のファイルがないテストは失敗する（黙って作らない）。
 

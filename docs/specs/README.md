@@ -4,7 +4,7 @@
 |---|---|
 | [01-overview.md](01-overview.md) | 目的、前提環境、スコープ |
 | [02-architecture.md](02-architecture.md) | コンポーネント、状態管理、データの置き場 |
-| [03-features.md](03-features.md) | 機能（F1〜F12）と設定項目 |
+| [03-features.md](03-features.md) | 機能（F1〜F13）と設定項目 |
 | [04-workflow.md](04-workflow.md) | live / record-only の流れ、エラーケース |
 | [05-model-selection.md](05-model-selection.md) | 文字起こしモデルの比較と採用理由 |
 | [06-calendar-enrich.md](06-calendar-enrich.md) | 予定の取得元（json / ics）、照合、組織・案件の推定、frontmatter |

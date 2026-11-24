@@ -52,7 +52,7 @@ class _Track:
             self.stream = self._open_stream(self.sr)
         self.stream.start()
         self.thread.start()
-        print(f"[{self.name}] 録音開始: {self.device} @ {self.sr}Hz", flush=True)
+        print(f"[{self.name}] 録音開始: {self.device or '既定の入力'} @ {self.sr}Hz", flush=True)
 
     def _open_stream(self, sr: int) -> sd.RawInputStream:
         return sd.RawInputStream(
@@ -84,7 +84,10 @@ class _Track:
                 self.file = None
                 self.frames = 0
                 self.idx += 1
-                self._check_silence()
+                self._chunk_closed()
+
+    def _chunk_closed(self) -> None:
+        self._check_silence()
 
     def _check_silence(self) -> None:
         if self.peak < _SILENCE_PEAK and not self.silence_warned:

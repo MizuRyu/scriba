@@ -23,6 +23,7 @@ It records the other participants and you on separate tracks and merges them int
 - **Titles and projects.** Meeting titles come from iCalendar (.ics / URL) or JSON events; organization and project are inferred from email domains and keywords and written as frontmatter. Classification is rule-based; no LLM is involved.
 - **A dictionary that grows.** Proper nouns are passed as recognition hints, recurring misrecognitions are replaced, and boilerplate hallucinations are dropped. Past meetings can be rebuilt after you edit the dictionary.
 - **A viewer to read and fix.** A monochrome HTML viewer to read transcripts, edit the dictionary and settings, and pick a project to export to.
+- **Keeps what you say outside meetings.** With listening enabled, scriba keeps recording the default microphone and transcribes only the parts that contain speech. Audio without speech is deleted right away.
 - **Keeps going.** A missing calendar or a failed voice detection never stops recording. Silence notifications, a forgotten-recording timeout (3 hours by default), and an automatic stop on no speech are built in.
 
 ## Example output
@@ -99,6 +100,7 @@ Microphone permission is inherited from the app that launches scriba. Run it fro
 
 ```sh
 scriba watch on       # enable auto recording (start/stop with meetings)
+scriba listen on      # keep listening (transcribe what you say outside meetings, keeping speech only)
 scriba start          # start recording manually
 scriba stop           # stop and transcribe the rest
 scriba status         # recording state and number of unexported meetings
@@ -117,7 +119,7 @@ Raycast Script Commands are in [raycast/](raycast/). The full command and config
 
 - Multiple remote speakers are not distinguished; the system track is treated as one speaker.
 - No summaries or minutes formatting. The transcript is raw material for downstream tools.
-- One Mac, one user, one recording at a time.
+- One Mac, one user, one meeting recording at a time.
 
 ## Development
 

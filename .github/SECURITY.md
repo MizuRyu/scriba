@@ -14,7 +14,9 @@ scriba は会議の音声を端末内で録音し、端末内で文字起こし�
 
 録音は相手の同意を得て行ってください。録音や文字起こしの扱いは、所属組織や会議の取り決めに従ってください。
 
-WAV は `retention_days`（既定 7 日）を過ぎると `scriba start` / `scriba cleanup` で消えます（未文字起こしのものは残します）。セッションごと消すには `scriba discard <id>` を使います。
+常時録音（`scriba listen`）は、有効にしている間マイクを開き続けます。周りの人の声や再生した音も、発話と判定されれば文字になります。発話の無い音声は発話検出の直後に消し、発話のある音声は `retention_days` の後に消します。本文は `{base_dir}/listen/` に残ります（`cleanup_target = "all"` のときは、本文も `retention_days` の後に消します）。消すには `listen/<id>/` のフォルダを削除します。ほかの人の声が入る場所では、その人の同意と所属組織の取り決めに従ってください。
+
+WAV は `retention_days`（既定 7 日）を過ぎると `scriba start` / `scriba cleanup` で消えます（未文字起こしのものは残します）。会議のセッションごと消すには `scriba discard <id>` を使います。
 
 ## 脆弱性の報告
 
