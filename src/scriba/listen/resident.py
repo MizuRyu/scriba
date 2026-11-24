@@ -2,6 +2,7 @@
 
 OS の既定の入力を録り続け、完成したチャンクを順に文字起こしする。会議の録音（state.json）とは
 独立に動く。マイクの許可は watch と同じく起動元のものが使われる。
+listen_pause_idle_min を設定すると、寝ている時間帯に入力も発話も無い間は、入力を閉じて待つ。
 """
 
 import json
@@ -12,6 +13,7 @@ import subprocess
 import sys
 import threading
 import time
+from datetime import datetime
 
 import sounddevice as sd
 
@@ -38,12 +40,17 @@ def run(cfg: Config) -> None:
     print("listen 開始", flush=True)
     while not stop.is_set():
         current = detect.default_input_device()
-        if track and (current != device or time.monotonic() - track.heard_at > STALL_SEC):
+        pause = pausing(cfg, datetime.now(), detect.input_idle_seconds(), time.monotonic() - backlog.spoke_at)
+        if track and pause:
+            print(f"入力も発話も {cfg.listen_pause_idle_min} 分ありません。入力を閉じます", flush=True)
+            track.close()
+            track = None
+        elif track and (current != device or time.monotonic() - track.heard_at > STALL_SEC):
             # 開き直すと新しいセッションになる。途切れた時間をまたいで本文の時刻をずらさないため
             print("入力デバイスが変わったか、音声が途絶えました。開き直します", flush=True)
             track.close()
             track = None
-        if track is None and current is not None:
+        if track is None and current is not None and not pause:
             track = _open(cfg)
             device = current
             if track is None and not warned:
@@ -61,6 +68,18 @@ def run(cfg: Config) -> None:
     if track:
         track.close()
     print("listen 終了", flush=True)
+
+
+def pausing(cfg: Config, now: datetime, idle_sec: float, silent_sec: float) -> bool:
+    """入力を閉じておく間は True。設定した時間帯の中で、入力も発話も listen_pause_idle_min 分無い間。
+
+    why not 発話で再開: 入力を閉じている間は音声が届かない。再開の合図は、キーボードやマウスの入力と、時間帯の終わりだけになる。
+    """
+    limit = cfg.listen_pause_idle_min * 60
+    start, end = cfg.listen_pause_from_hour, cfg.listen_pause_until_hour
+    # 開始が終了より後なら日付をまたぐ（22 時から 6 時）。同じ値なら終日
+    in_hours = start <= now.hour < end if start < end else now.hour >= start or now.hour < end
+    return limit > 0 and in_hours and idle_sec >= limit and silent_sec >= limit
 
 
 def _open(cfg: Config) -> Track | None:

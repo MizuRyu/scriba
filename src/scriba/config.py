@@ -50,6 +50,10 @@ class Config:
     meeting_apps: list = field(default_factory=lambda: ["com.microsoft.teams"])
     # F13: 常時録音（listen）。これらのアプリ（bundle id の接頭辞）がマイクを使っている間は文字起こしを待つ
     listen_yield_apps: list = field(default_factory=list)
+    # F13: from_hour 時から until_hour 時の間に、この分数だけ入力も発話も無ければ、常時録音の入力を閉じる（0 で無効）
+    listen_pause_idle_min: int = 0
+    listen_pause_from_hour: int = 0
+    listen_pause_until_hour: int = 6
     # セッションを置くフォルダ名。config.toml からは読まない（常時録音が for_listen で切り替える）
     sessions_name: str = "sessions"
     enrich_organizations: dict = None  # type: ignore[assignment]

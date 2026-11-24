@@ -1,8 +1,10 @@
 import json
+import time
 from datetime import datetime
 
 from scriba.config import Config, load
 from scriba.listen.backlog import Backlog
+from scriba.listen.resident import pausing
 from scriba.listen.track import Track
 
 
@@ -133,3 +135,38 @@ def test_backlog_keeps_audio_when_transcription_fails(tmp_path):
     assert backlog.step(None, busy=False) is False  # 同じチャンクを繰り返し試さない
     assert wav.exists()
     assert cfg.session_dir("s1").exists()
+
+
+def test_backlog_remembers_when_speech_was_last_heard(tmp_path):
+    cfg = Config(base_dir=tmp_path).for_listen()
+    _chunk(cfg, "s1", 0)
+    _chunk(cfg, "s1", 1)
+    backlog = _backlog(cfg, {"mic_000": "", "mic_001": "メモ"}, [])
+    started = backlog.spoke_at = time.monotonic() - 3600
+
+    backlog.step(None, busy=False)  # 発話なし
+    assert backlog.spoke_at == started
+    backlog.step(None, busy=False)  # 発話あり
+    assert time.monotonic() - backlog.spoke_at < 60
+
+
+def test_listening_pauses_only_at_night_without_input_and_speech(tmp_path):
+    cfg = Config(base_dir=tmp_path, listen_pause_idle_min=30)
+    night, day = datetime.fromisoformat("2026-01-05T02:00:00"), datetime.fromisoformat("2026-01-05T14:00:00")
+    half_hour = 30 * 60
+
+    assert pausing(cfg, night, idle_sec=half_hour, silent_sec=half_hour) is True
+    assert pausing(cfg, night, idle_sec=5, silent_sec=half_hour) is False  # 入力があれば再開する
+    assert pausing(cfg, night, idle_sec=half_hour, silent_sec=5) is False  # 触らずに話している間は止めない
+    assert pausing(cfg, day, idle_sec=half_hour, silent_sec=half_hour) is False  # 時間帯が終われば再開する
+    assert pausing(Config(base_dir=tmp_path), night, idle_sec=half_hour, silent_sec=half_hour) is False  # 既定は無効
+
+
+def test_pause_hours_may_cross_midnight(tmp_path):
+    cfg = Config(base_dir=tmp_path, listen_pause_idle_min=30, listen_pause_from_hour=22, listen_pause_until_hour=6)
+    long = 3600
+
+    assert pausing(cfg, datetime.fromisoformat("2026-01-05T23:00:00"), long, long) is True
+    assert pausing(cfg, datetime.fromisoformat("2026-01-05T05:59:00"), long, long) is True
+    assert pausing(cfg, datetime.fromisoformat("2026-01-05T06:00:00"), long, long) is False
+    assert pausing(cfg, datetime.fromisoformat("2026-01-05T21:59:00"), long, long) is False

@@ -2,6 +2,7 @@
 
 import json
 import shutil
+import time
 from pathlib import Path
 
 from scriba.config import Config
@@ -20,6 +21,8 @@ class Backlog:
         root = cfg.sessions_dir
         self.sessions = sorted(p.name for p in root.iterdir() if p.is_dir()) if root.exists() else []
         self.failed: set[Path] = set()
+        # 発話のあるチャンクを最後に処理した時刻。起動の直後は、発話があった扱いにして休止を始めない
+        self.spoke_at = time.monotonic()
 
     def add(self, session_id: str) -> None:
         if session_id not in self.sessions:
@@ -58,6 +61,7 @@ class Backlog:
         if entry["no_speech_skipped"]:
             wav.unlink()
         else:
+            self.spoke_at = time.monotonic()
             self.merge(self.cfg, session_id)
         print(f"処理: {session_id}/{wav.stem} speech={not entry['no_speech_skipped']}", flush=True)
 
