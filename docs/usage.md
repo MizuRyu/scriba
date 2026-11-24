@@ -103,7 +103,7 @@ listen_yield_apps = ["com.example.voiceinput"]
 
 - `scriba listen off` は、文字起こし中のチャンクが終わってから反映される。その間はマイクも開いている
 - 再起動・ログアウトで常駐プロセスは止まる
-- Mac がスリープしている間は録れない
+- Mac がスリープしている間は録れない。常時録音が入力を開いている間、macOS は操作が無くても自動ではスリープしない（画面は消える）。蓋を閉じるか、手でスリープさせたときだけスリープする
 - 動いているかは `scriba status` の「常時録音: 動作中」で確かめる。ログは `{base_dir}/logs/listen.log`
 
 ## Raycast
