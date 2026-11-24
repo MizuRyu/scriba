@@ -8,7 +8,7 @@
 |---|---|
 | [../README.md](../README.md) | 概要、インストール、基本操作 |
 | [background.md](background.md) | これは何か、なぜ作ったか、コードに書かれていない前提、設計の芯、普段の使われ方、制約、旧バージョンからの変更 |
-| [usage.md](usage.md) | セットアップ、コマンド、自動録音、予定との照合、転送、設定、辞書、データの場所、トラブルシュート |
+| [usage.md](usage.md) | セットアップ、コマンド、自動録音、常時録音、予定との照合、転送、設定、辞書、データの場所、トラブルシュート |
 | [../.github/SECURITY.md](../.github/SECURITY.md) | データの扱いと脆弱性の報告 |
 | [third-party-licenses.md](third-party-licenses.md) | 実行時に使うソフトウェアのライセンス |
 

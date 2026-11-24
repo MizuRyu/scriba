@@ -40,7 +40,7 @@ scriba view                       # HTMLビューアを生成して開く（静�
 scriba view --serve               # HTTPサーバー配信（5秒自動更新、Discard、辞書・Enrich 編集）
 scriba discard [<session-id>]     # セッションを破棄（録音中なら中止して破棄、IDなしなら最新）
 scriba dict show | validate       # 辞書の確認（Whisper の initial-prompt は上限224トークン）
-scriba cleanup                    # 保持期間を超えたWAVを削除（start時にも自動実行）
+scriba cleanup                    # 保持期間を超えた会議のWAVを削除（start時にも自動実行）
 scriba watch on | off | toggle    # 自動録音
 scriba listen on | off | toggle   # 常時録音
 ```
@@ -71,21 +71,40 @@ scriba watch on
 ## 常時録音
 
 ```bash
-scriba listen on
+scriba listen on     # 始める
+scriba listen off    # 止める
 ```
 
-OS の既定の入力を録り続け、発話のある部分だけを文字にして `{base_dir}/listen/` に残す。会議の録音や自動録音と同時に使える。
+会議の外で話したことを残すための機能。OS の既定の入力を録り続け、発話のある部分だけを文字にして `{base_dir}/listen/` に残す。会議の録音や自動録音と同時に使える。
 
-- 2 分のチャンクごとに発話検出にかけ、発話が無ければ音声をすぐ消す。発話が 1 つも無かった時間帯は何も残らない
-- 本文は 1 時間ごとのファイル（`listen/{session_id}/transcripts/yymmdd_hhmm.txt`）になる。ファイル名が開始時刻で、本文の時刻は開始からの経過
-- 既定の入力が変わると（イヤフォンの抜き差しなど）、新しい入力で録り直す
-- 音声入力アプリと併用するなら、`listen_yield_apps` にそのアプリの bundle id を書く。そのアプリがマイクを使っている間は文字起こしを待ち、認識の速度を落とさない
+### 残るもの
+
+- 本文は、時計の 1 時間ごとに 1 つのファイル（`listen/{session_id}/transcripts/yymmdd_hhmm.txt`）になる。ファイル名が開始時刻を示し、本文の `[mm:ss]` は開始からの経過を示す。話者ラベルは付かない
+- 2 分のチャンクごとに発話検出にかけ、発話が無ければ音声をその場で消す。発話が 1 つも無かった時間帯は、フォルダも残らない
+- 発話のある音声は `retention_days`（既定 7 日）の後に消え、本文は残る。`cleanup_target = "all"` にしていると、本文も同じ日数で消える
+- 探すときは `rg <語> ~/scriba/listen` のように本文のファイルを検索する。ビューア、`merge`、`discard` は常時録音を扱わない
+- 消すときは `listen/{session_id}/` のフォルダを削除する
+
+### 入力
+
+- 録るのは OS の既定の入力で、デバイス名の設定は無い。既定の入力が変わると（イヤフォンの抜き差しなど）、新しい入力で録り直す
 - 話者は区別しない。周りの人の声や再生した音も、発話と判定されれば文字になる
-- 発話のある音声は `retention_days` の後に消える。本文は残る
-- **マイクの許可を持つアプリ（Raycast など）から有効にする。** 再起動・ログアウトで常駐プロセスは止まる
+- **マイクの許可を持つアプリ（Raycast など）から有効にする。** 許可のないターミナルから起動すると無音で録れることがあり、その場合はすべての音声が発話なしとして消える
+
+### 音声入力アプリとの併用
+
+`listen_yield_apps` に音声入力アプリの bundle id を書くと、そのアプリがマイクを使っている間は文字起こしを待つ。録音は続ける。常時録音の文字起こしが、音声入力アプリの認識を遅らせないための設定。
+
+```toml
+listen_yield_apps = ["com.example.voiceinput"]
+```
+
+### 止まるとき
+
+- `scriba listen off` は、文字起こし中のチャンクが終わってから反映される。その間はマイクも開いている
+- 再起動・ログアウトで常駐プロセスは止まる
 - Mac がスリープしている間は録れない
-- 探すときは `rg <語> ~/scriba/listen` のように本文のファイルを検索する
-- ログ: `{base_dir}/logs/listen.log`
+- 動いているかは `scriba status` の「常時録音: 動作中」で確かめる。ログは `{base_dir}/logs/listen.log`
 
 ## Raycast
 
@@ -96,6 +115,7 @@ OS の既定の入力を録り続け、発話のある部分だけを文字に�
 | `toggle-scriba.sh` | 録音の開始・停止 |
 | `toggle-scriba-record-only.sh` | record-only での開始・停止 |
 | `toggle-scriba-watch.sh` | 自動録音の有効・無効 |
+| `toggle-scriba-listen.sh` | 常時録音の開始・停止 |
 | `scriba-status.sh` / `scriba-view.sh` / `scriba-serve.sh` | 状態、ビューア |
 
 スクリプトは `scriba` が PATH にあることを前提にする。`uv tool install` の置き場（`~/.local/bin`）が Raycast の PATH にないときは、スクリプトの `PATH` を自分の環境に合わせる。
@@ -221,6 +241,7 @@ Haas / Silero の重みは speech.cpp のキャッシュ（macOS は `~/Library/
 | 「system トラックが無音です」と通知される | 会議アプリのスピーカーが複数出力装置か。複数出力装置に BlackHole 2ch が入っているか |
 | BlackHole が見つからない | インストール後に `sudo killall coreaudiod` で CoreAudio を再起動する |
 | 自動録音で無音になる | マイクの許可を持つアプリ（Raycast など）から `scriba watch on` したか |
+| 常時録音の本文が増えない | `scriba status` に「常時録音: 動作中」が出るか。`logs/listen.log` の `処理:` の行がすべて `speech=False` なら、マイクの許可を持つアプリから `scriba listen on` したか |
 | ffmpeg が見つからない（Raycast から起動） | Raycast のスクリプトの `PATH` に ffmpeg の置き場があるか |
 | Haas の処理に失敗する | `scriba setup-model` で準備を確認。`language = "ja"` を使い、残った音声は `scriba transcribe <id>` で再試行する |
 | 会議名が付かない | `calendar_source` / `calendar_path` の設定、予定の開始が録音開始の ±10 分か。`scriba enrich latest` でやり直せる |
