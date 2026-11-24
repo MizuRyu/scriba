@@ -52,7 +52,7 @@ class _Track:
             self.stream = self._open_stream(self.sr)
         self.stream.start()
         self.thread.start()
-        print(f"[{self.name}] 録音開始: {self.device} @ {self.sr}Hz", flush=True)
+        print(f"[{self.name}] 録音開始: {self.device or '既定の入力'} @ {self.sr}Hz", flush=True)
 
     def _open_stream(self, sr: int) -> sd.RawInputStream:
         return sd.RawInputStream(
