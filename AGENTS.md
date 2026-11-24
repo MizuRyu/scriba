@@ -20,7 +20,8 @@ BlackHole 経由のシステム音声と、任意でマイクを sounddevice で
 3. ワーカーは完成したチャンクを Haas（speech.cpp）に通し、mic は同じランタイムの Silero VAD で発話区間を求め、`transcriber.merge_session` が辞書・フィルタ・重複の畳み込みをかけて combined（`yymmdd_hhmm[_会議名].txt`）を書き直す
 4. `scriba stop` → 録音を確定させて出力を戻し、残りを文字起こし。frontmatter を付け（`enrich.py`）、案件が決まっていれば転送する（`export.py`、分類は `classify.py`）
 5. 自動録音（`meeting/watch.py`）は会議アプリのマイク使用（`meeting/detect.py`）を見て `scriba start` / `scriba stop` を呼ぶ
-6. ビューア（`viewer/`）は `render.py` が HTML を、`server.py` が `view --serve` の HTTP と編集 API を持つ
+6. 常時録音（`listen/resident.py`）は会議の録音と独立に、既定の入力を録り続ける（`listen/track.py`）。完成したチャンクを文字起こしし、発話の無い音声とセッションを消す（`listen/backlog.py`）。セッションは `{base_dir}/listen/` に置き、`state.json` を使わない（ADR-007）
+7. ビューア（`viewer/`）は `render.py` が HTML を、`server.py` が `view --serve` の HTTP と編集 API を持つ
 
 ## コマンド
 

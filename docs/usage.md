@@ -42,6 +42,7 @@ scriba discard [<session-id>]     # セッションを破棄（録音中なら�
 scriba dict show | validate       # 辞書の確認（Whisper の initial-prompt は上限224トークン）
 scriba cleanup                    # 保持期間を超えたWAVを削除（start時にも自動実行）
 scriba watch on | off | toggle    # 自動録音
+scriba listen on | off | toggle   # 常時録音
 ```
 
 `uv tool install` していなければ `uv run scriba` で呼べる。
@@ -66,6 +67,25 @@ scriba watch on
 - **マイクの許可を持つアプリ（Raycast など）から有効にする。** 録音プロセスはマイクの許可を起動元から受け継ぐ。許可のないターミナルから起動すると無音で録れることがある
 - 再起動・ログアウトで常駐プロセスは止まる
 - ログ: `{base_dir}/logs/watch.log`
+
+## 常時録音
+
+```bash
+scriba listen on
+```
+
+OS の既定の入力を録り続け、発話のある部分だけを文字にして `{base_dir}/listen/` に残す。会議の録音や自動録音と同時に使える。
+
+- 2 分のチャンクごとに発話検出にかけ、発話が無ければ音声をすぐ消す。発話が 1 つも無かった時間帯は何も残らない
+- 本文は 1 時間ごとのファイル（`listen/{session_id}/transcripts/yymmdd_hhmm.txt`）になる。ファイル名が開始時刻で、本文の時刻は開始からの経過
+- 既定の入力が変わると（イヤフォンの抜き差しなど）、新しい入力で録り直す
+- 音声入力アプリと併用するなら、`listen_yield_apps` にそのアプリの bundle id を書く。そのアプリがマイクを使っている間は文字起こしを待ち、認識の速度を落とさない
+- 話者は区別しない。周りの人の声や再生した音も、発話と判定されれば文字になる
+- 発話のある音声は `retention_days` の後に消える。本文は残る
+- **マイクの許可を持つアプリ（Raycast など）から有効にする。** 再起動・ログアウトで常駐プロセスは止まる
+- Mac がスリープしている間は録れない
+- 探すときは `rg <語> ~/scriba/listen` のように本文のファイルを検索する
+- ログ: `{base_dir}/logs/listen.log`
 
 ## Raycast
 
@@ -146,6 +166,7 @@ export_subdir = "transcript/{project}"   # 既定
 | `export_dir` | 空 | 転送先のルート（空なら転送しない） |
 | `export_subdir` | `transcript/{project}` | 転送先ルート配下のフォルダ |
 | `meeting_apps` | `["com.microsoft.teams"]` | 自動録音で会議中とみなすアプリ（bundle id の接頭辞） |
+| `listen_yield_apps` | `[]` | 常時録音で、マイクを使っている間は文字起こしを待つアプリ（bundle id の接頭辞） |
 | `[enrich.organizations]` | なし | メールドメイン → 組織名 |
 | `[[enrich.projects]]` | なし | 案件の `alias` と `keywords`（定義順に評価） |
 
@@ -176,8 +197,10 @@ Haas の用語には `word: Haas=ハース` の形で読みも指定できる。
 ├── models/speech-0.10.0/         # 検証済みの実行ファイルと共有ライブラリ
 ├── state.json                   # 録音中の状態
 ├── watch.json                   # 自動録音の常駐プロセス
+├── listen.json                  # 常時録音の常駐プロセス
 ├── classification_rules.jsonl   # 仕訳ルール
-├── logs/                        # performance.jsonl, watch.log
+├── logs/                        # performance.jsonl, watch.log, listen.log
+├── listen/{session_id}/         # 常時録音。構成は sessions/ と同じ（mic トラックだけ、meta は開始時刻だけ）
 ├── view/index.html              # scriba view の出力
 └── sessions/{session_id}/
     ├── meta.json

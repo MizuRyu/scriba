@@ -99,6 +99,7 @@ scriba setup-model   # Haas の実行ファイルと重み（約 353 MB）を取
 
 ```sh
 scriba watch on       # 自動録音を有効にする（会議の開始・終了で録音を開始・停止）
+scriba listen on      # 常時録音を始める（会議の外で話したことも、発話だけを文字にして残す）
 scriba start          # 手動で録音を始める
 scriba stop           # 止めて、残りを文字起こしする
 scriba status         # 録音中か、未転送の会議が何件あるか

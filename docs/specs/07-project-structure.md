@@ -25,7 +25,11 @@ src/scriba/
     worker.py         live モードの逐次文字起こし
   meeting/          自動録音
     watch.py          常駐プロセスと開始・停止の判定（Detector）
-    detect.py         会議アプリのマイク使用（CoreAudio）
+    detect.py         アプリのマイク使用と既定の入力デバイス（CoreAudio）
+  listen/           常時録音
+    resident.py       常駐プロセスと、入力デバイスの変化への追従
+    track.py          既定の入力を録り、時が変わるたびにセッションを替えるトラック
+    backlog.py        完成したチャンクの文字起こし、発話の無い音声とセッションの削除
   calendar/         予定の取得元（アダプタ）
     __init__.py       load_events とイベント形式の日時変換
     json_source.py    イベント形式の JSON
@@ -49,5 +53,6 @@ images/             README の画像（アイコンの原本 SVG と PNG、画�
 | calendar ↔ enrich | enrich はイベント形式だけを見る。取得元の違い（ファイル、URL、繰り返しの展開）は calendar の中で閉じる |
 | enrich ↔ classify | 組織・案件の推定と仕訳ルールは classify。enrich は照合結果を classify に渡して frontmatter を作る |
 | 録音プロセス ↔ CLI | 録音・ワーカー・watch は `python -m scriba <内部サブコマンド>` の別プロセス。状態の受け渡しは state.json とセッション内のフラグファイル（`stopping`、`autostop`、`timeout`、`meeting_end`） |
+| 会議の録音 ↔ 常時録音 | 常時録音は state.json を読み書きしない。セッションの置き場は `Config.for_listen()` で `listen/` に替え、文字起こし・マージ・回収は会議と同じ関数を使う |
 | 重い依存 | mlx-whisper と Silero VAD（torch）は本体の依存にしない。`uvx` / `uv run --with` の別プロセスで呼ぶ |
 | トラック名 | 新規は `system` / `mic`。旧名 `teams` は `transcriber.canonical_track` で `system` に読み替える。ファイル名の書き換えはしない |

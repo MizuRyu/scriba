@@ -99,6 +99,7 @@ Microphone permission is inherited from the app that launches scriba. Run it fro
 
 ```sh
 scriba watch on       # enable auto recording (start/stop with meetings)
+scriba listen on      # keep listening (transcribe what you say outside meetings, keeping speech only)
 scriba start          # start recording manually
 scriba stop           # stop and transcribe the rest
 scriba status         # recording state and number of unexported meetings

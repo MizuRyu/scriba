@@ -54,6 +54,7 @@ stop 時:  frontmatter を付ける ──案件が決まっていれば──�
 ### 使い方の前提
 
 - **1 台・1 人・同時に 1 録音。** 録音中の状態は `{base_dir}/state.json` 1 つで持ち、2 本目の `start` は断る。複数の Mac でデータを共有する作りにはなっていない
+- **常時録音は会議の録音と別に動く。** `scriba listen` は `state.json` を使わず、会議の外で話したことを `{base_dir}/listen/` に残す。会議の録音の安全弁は常時録音を止める方向に働くので、仕組みを分けた（[ADR-007](adr/007-listen-resident.md)）
 - **自分が出ている会議を、相手の同意のもとで録る道具。** 録音や文字起こしの扱いは、所属組織や会議の取り決めに従う
 
 ## 設計の芯
@@ -80,6 +81,8 @@ stop 時:  frontmatter を付ける ──案件が決まっていれば──�
 | 録音（WAV） | `sessions/<id>/chunks/` | `retention_days`（既定 7 日）後の `start` / `cleanup`。未文字起こしなら残す |
 | Whisper の出力・VAD の結果 | `sessions/<id>/transcripts/*.json` | 消さない（`cleanup_target = "all"` ならセッションごと消える） |
 | combined | `sessions/<id>/transcripts/*.txt` | 消さない。merge と enrich で書き直す |
+| 常時録音の録音（WAV） | `listen/<id>/chunks/` | 発話が無ければ発話検出の直後。発話があれば `retention_days` 後 |
+| 常時録音の本文 | `listen/<id>/transcripts/*.txt` | 消さない（発話が 1 つも無いセッションは作られない） |
 | 転送したもの | `{export_dir}/...` | scriba は消さない（後段の道具の持ち物） |
 | 仕訳ルール | `classification_rules.jsonl` | 消さない。誤った学習は手で行を消す |
 | 性能のログ | `logs/performance.jsonl` | 消さない |

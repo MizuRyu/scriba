@@ -10,3 +10,4 @@
 | [004](004-calendar-source-adapters.md) | 予定の取得元を json / ics のアダプタに分ける |
 | [005](005-system-track-name.md) | 相手側のトラックを system と呼ぶ（旧名 teams も読む） |
 | [006](006-haas-default.md) | Haas Q4_K を既定にし、speech.cpp の別プロセスで認識する |
+| [007](007-listen-resident.md) | 常時録音を会議の録音とは別の常駐プロセスにする |

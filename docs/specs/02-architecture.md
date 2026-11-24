@@ -70,6 +70,7 @@
 - 録音プロセス・ワーカーの PID と切り替え前の出力デバイスを `{base_dir}/state.json` に保存
 - 録音中かどうかは state.json の有無 + 録音プロセスの生存確認で判定
 - セッション = 1回のstart〜stopを1セッションとして管理
+- 常時録音（listen）は state.json を使わない。常駐プロセスの PID を `{base_dir}/listen.json` に持ち、セッションは `{base_dir}/listen/` に置く（[ADR-007](../adr/007-listen-resident.md)）
 
 ## ディレクトリ構成
 
@@ -88,6 +89,8 @@
 │       │   ├── mic_000.json / mic_000.vad.json
 │       │   └── yymmdd_hhmm[_会議名].txt  # combined。時刻順マージ（[自分]/[相手]ラベル付き）
 │       └── meta.json                # セッション情報
+├── listen/
+│   └── {session_id}/                # 常時録音。構成は sessions/ と同じで、mic トラックだけを持つ
 ├── logs/
 │   └── performance.jsonl            # 全セッション共通
 └── state.json                       # 録音中の状態
@@ -95,7 +98,7 @@
 
 ## 実装言語
 
-Python 3.11+。依存は uv が管理する。録音、ワーカー、自動録音は別プロセス。ビューアは Python 標準ライブラリの HTTP サーバーと HTML / CSS / JavaScript を使う。
+Python 3.11+。依存は uv が管理する。録音、ワーカー、自動録音、常時録音は別プロセス。ビューアは Python 標準ライブラリの HTTP サーバーと HTML / CSS / JavaScript を使う。
 
 ## モデルの実行
 
