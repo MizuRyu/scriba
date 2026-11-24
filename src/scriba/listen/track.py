@@ -2,7 +2,7 @@
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from scriba.config import Config
 from scriba.recording import capture
@@ -22,6 +22,9 @@ class Track(capture._Track):
 
     def _begin(self, started: datetime) -> str:
         """新しいセッションを作り、以後のチャンクの書き先にする。"""
+        # 入力が続けて切り替わると同じ秒に開き直す。同じ ID を使うと、前のセッションのチャンクを上書きする
+        while self.cfg.session_dir(started.strftime(self.cfg.session_format)).exists():
+            started += timedelta(seconds=1)
         self.started = started
         self.session_id = started.strftime(self.cfg.session_format)
         session = self.cfg.session_dir(self.session_id)

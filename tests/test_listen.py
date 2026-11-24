@@ -46,6 +46,14 @@ def test_track_keeps_session_within_the_hour_and_switches_when_the_hour_changes(
     assert meta["tracks"] == ["mic"]
 
 
+def test_track_opened_again_within_the_same_second_gets_its_own_session(tmp_path):
+    cfg = Config(base_dir=tmp_path).for_listen()
+    first = Track(cfg, now=_Clock("2026-01-05T10:57:00"))
+    again = Track(cfg, now=_Clock("2026-01-05T10:57:00"))  # 入力が続けて切り替わると、同じ秒に開き直す
+    assert first.recording == ("20260105-105700", 0)
+    assert again.recording == ("20260105-105701", 0)
+
+
 def _chunk(cfg: Config, session_id: str, idx: int):
     chunks = cfg.session_dir(session_id) / "chunks"
     chunks.mkdir(parents=True, exist_ok=True)
