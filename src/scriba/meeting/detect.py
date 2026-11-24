@@ -1,4 +1,4 @@
-"""会議アプリがマイクを使っているか（通話中か）を CoreAudio のプロセス情報から読む。
+"""アプリがマイクを使っているか（通話中か）と、OS の既定の入力デバイスを CoreAudio から読む。
 
 macOS 14.2 以降の AudioProcess オブジェクトを ctypes で引く。アプリは bundle id の接頭辞で
 指定する（config.toml の meeting_apps）。Teams は通話中に modulehost が入力を開き、通話が終わると閉じる。
@@ -16,6 +16,7 @@ _SCOPE_GLOBAL = _fourcc("glob")
 _PROCESS_LIST = _fourcc("prs#")
 _BUNDLE_ID = _fourcc("pbid")
 _RUNNING_INPUT = _fourcc("piri")
+_DEFAULT_INPUT = _fourcc("dIn ")
 _UTF8 = 0x08000100
 
 
@@ -64,3 +65,9 @@ def mic_in_use(apps: list[str]) -> bool:
         if _bundle_id(obj).startswith(prefixes) and _get(obj, _RUNNING_INPUT, running) and running.value:
             return True
     return False
+
+
+def default_input_device() -> int | None:
+    """OS の既定の入力デバイスの ID。入力が無ければ None。同じデバイスでも抜き差しで ID は変わる。"""
+    device = ctypes.c_uint32()
+    return device.value if _get(_SYSTEM_OBJECT, _DEFAULT_INPUT, device) and device.value else None

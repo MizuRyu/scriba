@@ -2,7 +2,7 @@
 
 import os
 import tomllib
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field, fields, replace
 from pathlib import Path
 
 DEFAULT_BASE_DIR = "~/scriba"
@@ -48,12 +48,16 @@ class Config:
     export_subdir: str = "transcript/{project}"
     # F1: 自動録音（watch）で会議中とみなすアプリ（bundle id の接頭辞）
     meeting_apps: list = field(default_factory=lambda: ["com.microsoft.teams"])
+    # F13: 常時録音（listen）。これらのアプリ（bundle id の接頭辞）がマイクを使っている間は文字起こしを待つ
+    listen_yield_apps: list = field(default_factory=list)
+    # セッションを置くフォルダ名。config.toml からは読まない（常時録音が for_listen で切り替える）
+    sessions_name: str = "sessions"
     enrich_organizations: dict = None  # type: ignore[assignment]
     enrich_projects: list = None  # type: ignore[assignment]
 
     @property
     def sessions_dir(self) -> Path:
-        return self.base_dir / "sessions"
+        return self.base_dir / self.sessions_name
 
     @property
     def logs_dir(self) -> Path:
@@ -74,6 +78,10 @@ class Config:
     def session_dir(self, session_id: str) -> Path:
         return self.sessions_dir / session_id
 
+    def for_listen(self) -> "Config":
+        """常時録音のセッションを会議のセッションと混ぜないための設定。置き場だけが違う。"""
+        return replace(self, sessions_name="listen")
+
 
 def load() -> Config:
     base_dir = Path(os.environ.get("SCRIBA_HOME", DEFAULT_BASE_DIR)).expanduser()
@@ -88,7 +96,7 @@ def load() -> Config:
         enrich = raw.pop("enrich", {})
         enrich_orgs = enrich.get("organizations", {})
         enrich_projects = enrich.get("projects", [])
-        values = {k: v for k, v in raw.items() if k in known and k != "base_dir"}
+        values = {k: v for k, v in raw.items() if k in known and k not in ("base_dir", "sessions_name")}
     cfg = Config(base_dir=base_dir, **values)
     if cfg.enrich_organizations is None:
         cfg.enrich_organizations = enrich_orgs

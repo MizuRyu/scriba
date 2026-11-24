@@ -1,4 +1,4 @@
-"""scriba CLI: start / stop / status / transcribe / merge / title / enrich / view / dict / cleanup / worker"""
+"""scriba CLI: start / stop / status / transcribe / merge / title / enrich / view / dict / cleanup / watch / listen / worker"""
 
 import argparse
 import json
@@ -64,6 +64,9 @@ def main() -> None:
 
     p_watch = sub.add_parser("watch", help="自動録音（会議の開始・終了で録音を開始・停止）")
     p_watch.add_argument("action", choices=["on", "off", "toggle", "run"], help="run は内部用（常駐プロセス本体）")
+
+    p_listen = sub.add_parser("listen", help="常時録音（既定の入力を録り続け、発話だけを文字にして残す）")
+    p_listen.add_argument("action", choices=["on", "off", "toggle", "run"], help="run は内部用（常駐プロセス本体）")
 
     p_worker = sub.add_parser("worker")  # 内部用（liveモードのバックグラウンドワーカー）
     p_worker.add_argument("session")
@@ -134,6 +137,20 @@ def _watch(cfg, action: str) -> None:
         print("自動録音: 無効にしました" if watch.disable(cfg) else "自動録音: 既に無効です")
 
 
+def _listen(cfg, action: str) -> None:
+    from scriba.listen import resident
+
+    if action == "run":
+        resident.run(cfg)
+        return
+    if action == "toggle":
+        action = "off" if resident.running_pid(cfg) else "on"
+    if action == "on":
+        print("常時録音: 開始しました" if resident.enable(cfg) else "常時録音: 既に動いています")
+    else:
+        print("常時録音: 停止しました" if resident.disable(cfg) else "常時録音: 既に止まっています")
+
+
 def _dispatch(args, cfg) -> None:
     if args.command == "setup-model":
         if not cfg.model.startswith("haas-"):
@@ -164,6 +181,10 @@ def _dispatch(args, cfg) -> None:
         from scriba.meeting import watch
 
         print(f"自動録音: {'有効' if watch.running_pid(cfg) else '無効'}")
+        from scriba.listen import resident
+
+        if resident.running_pid(cfg):
+            print("常時録音: 動作中")
         if not st:
             print("停止中")
         else:
@@ -305,6 +326,9 @@ def _dispatch(args, cfg) -> None:
 
     elif args.command == "watch":
         _watch(cfg, args.action)
+
+    elif args.command == "listen":
+        _listen(cfg, args.action)
 
     elif args.command == "worker":
         from scriba.transcription import worker
