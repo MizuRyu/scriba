@@ -113,6 +113,17 @@ listen_pause_until_hour = 6    # 閉じてよい時間帯の終了（時）
 - 無操作でも、話している間は閉じない
 - 日付をまたぐ時間帯は `listen_pause_from_hour = 22`、`listen_pause_until_hour = 6` のように書く
 
+### 電池で動いている間は止める
+
+```toml
+listen_pause_on_battery = true
+```
+
+電源アダプタを外して電池で動いている間は、マイクを閉じる。電源アダプタをつなぐと、マイクを開き直す。既定は無効。
+
+- マイクを開いている間は、macOS の音声処理（coreaudiod）が電力を使い続ける。電池の減りを抑えたいときに使う
+- 電池で動いている間に話した分は残らない。会議の録音と自動録音は、この設定に関係なく録る
+
 ### 止まるとき
 
 - `scriba listen off` は、文字起こし中のチャンクが終わってから反映される。その間はマイクも開いている
@@ -203,6 +214,7 @@ export_subdir = "transcript/{project}"   # 既定
 | `listen_yield_apps` | `[]` | 常時録音で、マイクを使っている間は文字起こしを待つアプリ（bundle id の接頭辞） |
 | `listen_pause_idle_min` | `0` | 常時録音で、入力も発話も無い状態がこの分数だけ続いたらマイクを閉じる（0 で無効） |
 | `listen_pause_from_hour` / `listen_pause_until_hour` | `0` / `6` | マイクを閉じてよい時間帯（時）。開始が終了より後なら日付をまたぐ |
+| `listen_pause_on_battery` | `false` | 常時録音で、電池で動いている間はマイクを閉じる |
 | `[enrich.organizations]` | なし | メールドメイン → 組織名 |
 | `[[enrich.projects]]` | なし | 案件の `alias` と `keywords`（定義順に評価） |
 

@@ -3,6 +3,7 @@
 OS の既定の入力を録り続け、完成したチャンクを順に文字起こしする。会議の録音（state.json）とは
 独立に動く。マイクの許可は watch と同じく起動元のものが使われる。
 listen_pause_idle_min を設定すると、寝ている時間帯に入力も発話も無い間は、入力を閉じて待つ。
+listen_pause_on_battery を設定すると、電池で動いている間は、入力を閉じて待つ。
 """
 
 import json
@@ -40,9 +41,11 @@ def run(cfg: Config) -> None:
     print("listen 開始", flush=True)
     while not stop.is_set():
         current = detect.default_input_device()
-        pause = pausing(cfg, datetime.now(), detect.input_idle_seconds(), time.monotonic() - backlog.spoke_at)
+        battery = cfg.listen_pause_on_battery and detect.on_battery()
+        pause = battery or pausing(cfg, datetime.now(), detect.input_idle_seconds(), time.monotonic() - backlog.spoke_at)
         if track and pause:
-            print(f"入力も発話も {cfg.listen_pause_idle_min} 分ありません。入力を閉じます", flush=True)
+            reason = "電池で動いています" if battery else f"入力も発話も {cfg.listen_pause_idle_min} 分ありません"
+            print(f"{reason}。入力を閉じます", flush=True)
             track.close()
             track = None
         elif track and (current != device or time.monotonic() - track.heard_at > STALL_SEC):
