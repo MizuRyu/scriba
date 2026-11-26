@@ -1,4 +1,5 @@
-"""アプリがマイクを使っているか（通話中か）と OS の既定の入力デバイスを CoreAudio から、入力の無い時間を CoreGraphics から読む。
+"""アプリがマイクを使っているか（通話中か）と OS の既定の入力デバイスを CoreAudio から、入力の無い時間を CoreGraphics から、
+電池で動いているかを IOKit から読む。
 
 macOS 14.2 以降の AudioProcess オブジェクトを ctypes で引く。アプリは bundle id の接頭辞で
 指定する（config.toml の meeting_apps）。Teams は通話中に modulehost が入力を開き、通話が終わると閉じる。
@@ -33,6 +34,9 @@ _cg.CGEventSourceSecondsSinceLastEventType.restype = ctypes.c_double
 _cg.CGEventSourceSecondsSinceLastEventType.argtypes = [ctypes.c_int32, ctypes.c_uint32]
 _HID_SYSTEM_STATE = 1
 _ANY_INPUT_EVENT = 0xFFFFFFFF
+_iokit = ctypes.cdll.LoadLibrary(ctypes.util.find_library("IOKit"))
+_iokit.IOPSGetTimeRemainingEstimate.restype = ctypes.c_double
+_TIME_REMAINING_UNLIMITED = -2.0  # 電源アダプタにつながっている。電池の無い Mac もこの値を返す
 
 
 def _get(obj: int, selector: int, buf) -> bool:
@@ -81,3 +85,8 @@ def default_input_device() -> int | None:
 def input_idle_seconds() -> float:
     """キーボード、マウス、トラックパッドの最後の入力からの秒数。"""
     return _cg.CGEventSourceSecondsSinceLastEventType(_HID_SYSTEM_STATE, _ANY_INPUT_EVENT)
+
+
+def on_battery() -> bool:
+    """電池で動いている間は True。"""
+    return _iokit.IOPSGetTimeRemainingEstimate() != _TIME_REMAINING_UNLIMITED

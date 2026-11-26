@@ -54,6 +54,8 @@ class Config:
     listen_pause_idle_min: int = 0
     listen_pause_from_hour: int = 0
     listen_pause_until_hour: int = 6
+    # F13: 電池で動いている間は、常時録音の入力を閉じる
+    listen_pause_on_battery: bool = False
     # セッションを置くフォルダ名。config.toml からは読まない（常時録音が for_listen で切り替える）
     sessions_name: str = "sessions"
     enrich_organizations: dict = None  # type: ignore[assignment]

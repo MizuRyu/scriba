@@ -4,7 +4,7 @@ from datetime import datetime
 
 from scriba.config import Config, load
 from scriba.listen.backlog import Backlog
-from scriba.listen.resident import pausing
+from scriba.listen.resident import _close, pausing
 from scriba.listen.track import Track
 
 
@@ -54,6 +54,19 @@ def test_track_opened_again_within_the_same_second_gets_its_own_session(tmp_path
     again = Track(cfg, now=_Clock("2026-01-05T10:57:00"))  # 入力が続けて切り替わると、同じ秒に開き直す
     assert first.recording == ("20260105-105700", 0)
     assert again.recording == ("20260105-105701", 0)
+
+
+def test_closing_right_after_the_hour_changes_keeps_the_new_session_in_the_backlog(tmp_path):
+    cfg = Config(base_dir=tmp_path).for_listen()
+    backlog = Backlog(cfg)
+    track = Track(cfg, now=_Clock("2026-01-05T10:59:00", "2026-01-05T11:01:00"))
+    backlog.add(track.session_id)
+    _close_chunk(track)  # 11:01。常駐のループが拾う前に新しいセッションへ替わる
+    track.close = lambda: None  # ストリームを開いていない
+
+    _close(track, backlog)
+
+    assert "20260105-110100" in backlog.sessions
 
 
 def _chunk(cfg: Config, session_id: str, idx: int):
