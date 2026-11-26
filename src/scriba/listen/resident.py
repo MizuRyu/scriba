@@ -46,12 +46,12 @@ def run(cfg: Config) -> None:
         if track and pause:
             reason = "電池で動いています" if battery else f"入力も発話も {cfg.listen_pause_idle_min} 分ありません"
             print(f"{reason}。入力を閉じます", flush=True)
-            track.close()
+            _close(track, backlog)
             track = None
         elif track and (current != device or time.monotonic() - track.heard_at > STALL_SEC):
             # 開き直すと新しいセッションになる。途切れた時間をまたいで本文の時刻をずらさないため
             print("入力デバイスが変わったか、音声が途絶えました。開き直します", flush=True)
-            track.close()
+            _close(track, backlog)
             track = None
         if track is None and current is not None and not pause:
             track = _open(cfg)
@@ -83,6 +83,13 @@ def pausing(cfg: Config, now: datetime, idle_sec: float, silent_sec: float) -> b
     # 開始が終了より後なら日付をまたぐ（22 時から 6 時）。同じ値なら終日
     in_hours = start <= now.hour < end if start < end else now.hour >= start or now.hour < end
     return limit > 0 and in_hours and idle_sec >= limit and silent_sec >= limit
+
+
+def _close(track: Track, backlog: Backlog) -> None:
+    """入力を閉じ、最後のセッションを文字起こし待ちに入れる。"""
+    track.close()
+    # 時が変わった直後に閉じると、ループがまだ拾っていない新しいセッションに最後のチャンクが入っている
+    backlog.add(track.session_id)
 
 
 def _open(cfg: Config) -> Track | None:
